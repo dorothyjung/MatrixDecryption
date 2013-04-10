@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <emmintrin.h>
+#include <nmmintrin.h>
 
 void sgemm( int m, int n, int d, float *A, float *C )
 {
