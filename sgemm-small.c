@@ -27,5 +27,11 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			}
 		}
 	}
+
+	if ( n % ROLL_SIZE != 0) {
+		for (int i = 0; i < n; i++) {
+			memcpy(temp + i*n, C + i*(n + n % ROLL_SIZE), n);
+		}
+	}
 }
 
