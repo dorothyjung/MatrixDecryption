@@ -25,10 +25,18 @@ load A[k*n to k*n+m] in a register on the 2nd loop (k).
 -store A[k*n to k*n+m] back into memory (sse)
 leave innermost loop(i) as is
 
-4. Implement Loop Unrolling (see lab 7)
+4. Implement Loop Unrolling (see lab 7) - do first
+
+Use hadd to unroll loop further; i.e. more iterations covered by horizontal addition
+
 increment every loop by 4*(num of unrolled iterations)
 unroll iterations of i (innermost loop)
 
 fringe case: use same method as lab07 (sum.c), add extra check so that variable le less than height/width??
 
-5. Compiler Tricks (minor modifications to your source code can cause the compiler to produce a faster program)
+5. Cache Blocking - next
+optimal number of blocks to have
+run script that increases/tests different numbers of blocksize
+ 
+
+6. Compiler Tricks (minor modifications to your source code can cause the compiler to produce a faster program)
