@@ -7,6 +7,7 @@
 
 void sgemm( int m, int n, int d, float *A, float *C )
 {
+	float *temp;
 	if ((n % ROLL_SIZE) != 0) {
 		// pad matrix with 0s if not divisible by 4 
 		float buffer[(n + n % ROLL_SIZE) * (n + d)] = {0};
@@ -14,7 +15,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			memcpy(buffer + i*(n + n % ROLL_SIZE), A + i*n, n);
 		}
 		A = buffer;
-		float *temp = C;
+		temp = C;
 		float cbuffer[(n + n % ROLL_SIZE) * (n + n % ROLL_SIZE)] = {0};
 		C = cbuffer;
 	}
