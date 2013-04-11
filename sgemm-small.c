@@ -3,18 +3,18 @@
 #include <nmmintrin.h>
 #include <string.h>
 
-#define ROLL_SIZE 4;
+#define ROLL_SIZE 4
 
 void sgemm( int m, int n, int d, float *A, float *C )
 {
-	if (n % ROLL_SIZE != 0) {
+	if ((n % ROLL_SIZE) != 0) {
 		// pad matrix with 0s if not divisible by 4 
 		float buffer[(n + n % ROLL_SIZE) * (n + d)] = {0};
 		for (int i = 0; i < d+n; i++) {
 			memcpy(buffer + i*(n + n % ROLL_SIZE), A + i*n, n);
 		}
 		A = buffer;
-		float temp = C;
+		float *temp = C;
 		float cbuffer[(n + n % ROLL_SIZE) * (n + n % ROLL_SIZE)] = {0};
 		C = cbuffer;
 	}
