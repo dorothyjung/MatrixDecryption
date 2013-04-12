@@ -5,6 +5,25 @@
 
 #define ROLL_SIZE 4
 
+void printMatrix(int n, int m, float *A) {
+    printf("Matrix: \n");
+    for (int i = 0; i < m ; i++) {
+	printf("=");
+    }
+    printf("\n");
+    for (int i = 0; i < n; i++) {
+	for (int j = 0; j < m; j ++) {
+	    printf("%.2f ", A[n*j+i]);
+	}
+	printf("\n");
+    }
+    for (int i = 0; i < m ; i++) {
+	printf("=");
+    }
+    printf("\n");
+}
+
+
 void sgemm( int m, int n, int d, float *A, float *C )
 {
 	float *temp;
@@ -28,7 +47,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			}
 		}
 	}
-
+	printMatrix(n, m, C);
 	if ( n % ROLL_SIZE != 0) {
 		for (int i = 0; i < n; i++) {
 			memcpy(temp + i*n, C + i*(n + n % ROLL_SIZE), n*(sizeof(float)));
@@ -36,18 +55,3 @@ void sgemm( int m, int n, int d, float *A, float *C )
 	}
 }
 
-void printMatrix(int n, int m, float *A) {
-	char matrixString = "Matrix: \n";
-	for (int i = 0; i < m ; i++) {
-		matrixString += "=";
-	}
-	matrixString += "\n";
-	printf(matrixString);
-	for (int i = 0; i < n; i++) {
-	    for (int j = 0; j < m; j ++) {
-		printf(A[n*j+i]);
-	    }
-	    matrixString += "\n";
-	}
-	printf(matrixString);
-}
