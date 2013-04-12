@@ -55,7 +55,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		__m128 cv2 = CV(2)
 		__m128 cv3 = CV(3)
 		__m128 cv4 = CV(4)
-		for(int k = b; k < m; k++) {
+		for(int k = 0; k < m; k++) {
 			__m128 transposeVector = _mm_load1_ps(A+j*(n+1)+k*n);
 			for(int i = 0; i < n/ROLL_SIZE*ROLL_SIZE; i = i + ROLL_SIZE) {
 				switch(i) {
@@ -74,7 +74,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 					case 4*ROLL_SIZE: 
 						c4 = _mm_add_ps(c4, _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector));
 						cv4 = _mm_add_ps(cv4, _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector));
-					case default: 
+					default: 
 						_mm_storeu_ps(C+i+j*n, _mm_add_ps(_mm_loadu_ps(C+i+j*n), _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector)));
 						_mm_storeu_ps(C+i+j*n+4, _mm_add_ps(_mm_loadu_ps(C+i+j*n+4), _mm_mul_ps(_mm_loadu_ps(A+i+k*n+4), transposeVector)));
 					}
