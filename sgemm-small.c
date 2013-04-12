@@ -4,6 +4,7 @@
 #include <string.h>
 
 #define ROLL_SIZE 8
+#define BLOCK_SIZE 5
 
 void printMatrix(int n, int m, float *A) {
     printf("Matrix: \n");
@@ -41,16 +42,20 @@ void sgemm( int m, int n, int d, float *A, float *C )
 	// 	memset(cbuffer, 0, ((n + ROLL_SIZE-(n % ROLL_SIZE)) * (n + ROLL_SIZE-(n % ROLL_SIZE)))*sizeof(float));
 	// 	C = cbuffer;
 	// }
-	for(int j = 0; j < n; j = j++) {
-		for(int k = 0; k < m; k++) {
-			__m128 transposeVector = _mm_load1_ps(A+j*(n+1)+k*n);
-			for(int i = 0; i < n/ROLL_SIZE*ROLL_SIZE; i = i + ROLL_SIZE) {
-				_mm_storeu_ps(C+i+j*n, _mm_add_ps(_mm_loadu_ps(C+i+j*n), _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector)));
-				_mm_storeu_ps(C+i+j*n+4, _mm_add_ps(_mm_loadu_ps(C+i+j*n+4), _mm_mul_ps(_mm_loadu_ps(A+i+k*n+4), transposeVector)));
-			}
-			if (n%ROLL_SIZE != 0) {
-				for (int i = n/ROLL_SIZE*ROLL_SIZE; i < n; i++) {
-					_mm_store_ss(C+i+j*n, _mm_add_ps(_mm_load_ss(C+i+j*n), _mm_mul_ps(_mm_load_ss(A+i+k*n), transposeVector)));
+	for (int jB = 0; b < n; b+= BLOCK_SIZE) {
+		for (int kB = 0 ; kB < m; kB+= BLOCK_SIZE){
+			for(int j = 0; j < jB + BLOCK_SIZE && j < n; j = j++) {
+				for(int k = 0; k < kB + BLOCK_SIZE && k < m; k++) {
+					__m128 transposeVector = _mm_load1_ps(A+j*(n+1)+k*n);
+					for(int i = 0; i < n/ROLL_SIZE*ROLL_SIZE; i = i + ROLL_SIZE) {
+						_mm_storeu_ps(C+i+j*n, _mm_add_ps(_mm_loadu_ps(C+i+j*n), _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector)));
+						_mm_storeu_ps(C+i+j*n+4, _mm_add_ps(_mm_loadu_ps(C+i+j*n+4), _mm_mul_ps(_mm_loadu_ps(A+i+k*n+4), transposeVector)));
+					}
+					if (n%ROLL_SIZE != 0) {
+						for (int i = n/ROLL_SIZE*ROLL_SIZE; i < n; i++) {
+							_mm_store_ss(C+i+j*n, _mm_add_ps(_mm_load_ss(C+i+j*n), _mm_mul_ps(_mm_load_ss(A+i+k*n), transposeVector)));
+						}
+					}
 				}
 			}
 		}
