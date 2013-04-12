@@ -90,6 +90,11 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		_mm_storeu_ps(C+2*ROLL_SIZE+j*n, c2);
 		_mm_storeu_ps(C+3*ROLL_SIZE+j*n, c3);
 		_mm_storeu_ps(C+4*ROLL_SIZE+j*n, c4);
+		_mm_storeu_ps(C+0*ROLL_SIZE+j*n+4, cv0);
+		_mm_storeu_ps(C+1*ROLL_SIZE+j*n+4, cv1);
+		_mm_storeu_ps(C+2*ROLL_SIZE+j*n+4, cv2);
+		_mm_storeu_ps(C+3*ROLL_SIZE+j*n+4, cv3);
+		_mm_storeu_ps(C+4*ROLL_SIZE+j*n+4, cv4);
 	}
 	// //printMatrix(n, m, C);
 	// if ( n % ROLL_SIZE != 0) {
