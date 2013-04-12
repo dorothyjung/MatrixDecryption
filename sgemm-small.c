@@ -29,15 +29,15 @@ void sgemm( int m, int n, int d, float *A, float *C )
 	float *temp;
 	if ((n % ROLL_SIZE) != 0) {
 		// pad matrix with 0s if not divisible by 4 
-	    float buffer[(n + (n % ROLL_SIZE)) * (n + d)];
-	    memset(buffer, 0, ((n + (n % ROLL_SIZE)) * (n + d))*sizeof(float));
+	    float buffer[(n + ROLL_SIZE-(n % ROLL_SIZE)) * (n + d)];
+	    memset(buffer, 0, ((n + ROLL_SIZE-(n % ROLL_SIZE)) * (n + d))*sizeof(float));
 		for (int i = 0; i < d+n; i++) {
-			memcpy(buffer + i*(n + (n % ROLL_SIZE)), A + i*n, n*(sizeof(float)));
+			memcpy(buffer + i*(n + ROLL_SIZE-(n % ROLL_SIZE)), A + i*n, n*(sizeof(float)));
 		}
 		A = buffer;
 		temp = C;
-		float cbuffer[(n + (n % ROLL_SIZE)) * (n + (n % ROLL_SIZE))];
-		memset(cbuffer, 0, ((n + (n % ROLL_SIZE)) * (n + (n % ROLL_SIZE)))*sizeof(float));
+		float cbuffer[(n + ROLL_SIZE-(n % ROLL_SIZE)) * (n + (n % ROLL_SIZE))];
+		memset(cbuffer, 0, ((n + ROLL_SIZE-(n % ROLL_SIZE)) * (n + ROLL_SIZE-(n % ROLL_SIZE)))*sizeof(float));
 		C = cbuffer;
 	}
 	for(int j = 0; j < n; j = j++) {
@@ -53,7 +53,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 	//printMatrix(n, m, C);
 	if ( n % ROLL_SIZE != 0) {
 		for (int i = 0; i < n; i++) {
-			memcpy(temp + i*n, C + i*(n + n % ROLL_SIZE), n*(sizeof(float)));
+			memcpy(temp + i*n, C + i*(n + ROLL_SIZE-(n % ROLL_SIZE)), n*(sizeof(float)));
 		}
 	}
 }
