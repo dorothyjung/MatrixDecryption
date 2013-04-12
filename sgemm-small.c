@@ -5,6 +5,8 @@
 
 #define ROLL_SIZE 8
 #define BLOCK_SIZE 8
+#define C(i) _mm_loadu_ps(C+i*ROLL_SIZE+j*n);
+#define CV(i) _mm_loadu_ps(C+i*ROLL_SIZE+j*n+4);
 
 void printMatrix(int n, int m, float *A) {
     printf("Matrix: \n");
@@ -42,21 +44,51 @@ void sgemm( int m, int n, int d, float *A, float *C )
 	// 	memset(cbuffer, 0, ((n + ROLL_SIZE-(n % ROLL_SIZE)) * (n + ROLL_SIZE-(n % ROLL_SIZE)))*sizeof(float));
 	// 	C = cbuffer;
 	// }
-	for (int b = 0; b < m; b+= BLOCK_SIZE) {
-		for(int j = 0; j < n; j = j++) {
-			for(int k = b; k < b + BLOCK_SIZE && k < m; k++) {
-				__m128 transposeVector = _mm_load1_ps(A+j*(n+1)+k*n);
-				for(int i = 0; i < n/ROLL_SIZE*ROLL_SIZE; i = i + ROLL_SIZE) {
-					_mm_storeu_ps(C+i+j*n, _mm_add_ps(_mm_loadu_ps(C+i+j*n), _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector)));
-					_mm_storeu_ps(C+i+j*n+4, _mm_add_ps(_mm_loadu_ps(C+i+j*n+4), _mm_mul_ps(_mm_loadu_ps(A+i+k*n+4), transposeVector)));
-				}
-				if (n%ROLL_SIZE != 0) {
-					for (int i = n/ROLL_SIZE*ROLL_SIZE; i < n; i++) {
-						_mm_store_ss(C+i+j*n, _mm_add_ps(_mm_load_ss(C+i+j*n), _mm_mul_ps(_mm_load_ss(A+i+k*n), transposeVector)));
-					}
+	for(int j = 0; j < n; j = j++) {
+		c0 = C(0)
+		c1 = C(1)
+		c2 = C(2)
+		c3 = C(3)
+		c4 = C(4)
+		cv0 = CV(0)
+		cv1 = CV(1)
+		cv2 = CV(2)
+		cv3 = CV(3)
+		cv4 = CV(4)
+		for(int k = b; k < m; k++) {
+			__m128 transposeVector = _mm_load1_ps(A+j*(n+1)+k*n);
+			for(int i = 0; i < n/ROLL_SIZE*ROLL_SIZE; i = i + ROLL_SIZE) {
+				switch(i) {
+					case 0*ROLL_SIZE: 
+						c0 = _mm_add_ps(c0, _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector));
+						cv0 = _mm_add_ps(cv0, _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector))
+					case 1*ROLL_SIZE: 
+						c1 = _mm_add_ps(c1, _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector));
+						cv1 = _mm_add_ps(cv1, _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector))
+					case 2*ROLL_SIZE: 
+						c2 = _mm_add_ps(c2, _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector));
+						cv2 = _mm_add_ps(cv2, _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector))
+					case 3*ROLL_SIZE: 
+						c3 = _mm_add_ps(c3, _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector));
+						cv3 = _mm_add_ps(cv3, _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector))
+					case 4*ROLL_SIZE: 
+						c4 = _mm_add_ps(c4, _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector));
+						cv4 = _mm_add_ps(cv4, _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector))
+					case default: 
+						_mm_storeu_ps(C+i+j*n, _mm_add_ps(_mm_loadu_ps(C+i+j*n), _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector)));
+						_mm_storeu_ps(C+i+j*n+4, _mm_add_ps(_mm_loadu_ps(C+i+j*n+4), _mm_mul_ps(_mm_loadu_ps(A+i+k*n+4), transposeVector)));
+			}
+			if (n%ROLL_SIZE != 0) {
+				for (int i = n/ROLL_SIZE*ROLL_SIZE; i < n; i++) {
+					_mm_store_ss(C+i+j*n, _mm_add_ps(_mm_load_ss(C+i+j*n), _mm_mul_ps(_mm_load_ss(A+i+k*n), transposeVector)));
 				}
 			}
 		}
+		_mm_storeu_ps(C+0*ROLL_SIZE+j*n, c0);
+		_mm_storeu_ps(C+1*ROLL_SIZE+j*n, c1);
+		_mm_storeu_ps(C+2*ROLL_SIZE+j*n, c2);
+		_mm_storeu_ps(C+3*ROLL_SIZE+j*n, c3);
+		_mm_storeu_ps(C+4*ROLL_SIZE+j*n, c4);
 	}
 	// //printMatrix(n, m, C);
 	// if ( n % ROLL_SIZE != 0) {
