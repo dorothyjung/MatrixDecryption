@@ -49,7 +49,6 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				_mm_storeu_ps(C+i+j*n+4, _mm_add_ps(_mm_loadu_ps(C+i+j*n+4), _mm_mul_ps(_mm_loadu_ps(A+i+k*n+4), transposeVector)));
 			}
 			for (int i = n/ROLL_SIZE*ROLL_SIZE; i < n; i++) {
-				printf("went into edge case");
 				_mm_store_ss(C+i+j*n, _mm_add_ps(_mm_load_ss(C+i+j*n), _mm_mul_ps(_mm_load_ss(A+i+k*n), transposeVector)));
 			}
 		}
