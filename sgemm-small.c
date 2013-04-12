@@ -10,13 +10,13 @@ void sgemm( int m, int n, int d, float *A, float *C )
 	float *temp;
 	if ((n % ROLL_SIZE) != 0) {
 		// pad matrix with 0s if not divisible by 4 
-		float buffer[(n + n % ROLL_SIZE) * (n + d)];
+		float buffer[(n + (n % ROLL_SIZE)) * (n + d)];
 		for (int i = 0; i < d+n; i++) {
-			memcpy(buffer + i*(n + n % ROLL_SIZE), A + i*n, n*(sizeof(float)));
+			memcpy(buffer + i*(n + (n % ROLL_SIZE)), A + i*n, n*(sizeof(float)));
 		}
 		A = buffer;
 		temp = C;
-		float cbuffer[(n + n % ROLL_SIZE) * (n + n % ROLL_SIZE)];
+		float cbuffer[(n + (n % ROLL_SIZE)) * (n + (n % ROLL_SIZE))];
 		C = cbuffer;
 	}
 	for(int j = 0; j < n; j = j++) {
@@ -37,7 +37,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 }
 
 void printMatrix(int n, int m, float *A) {
-	char[] matrixString = "Matrix: \n";
+	char matrixString = "Matrix: \n";
 	for (int i = 0; i < m ; i++) {
 		matrixString += "=";
 	}
