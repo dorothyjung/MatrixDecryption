@@ -37,7 +37,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 }
 
 void printMatrix(int n, int m, float *A) {
-	char[] matrixString = "Matrix: \n";
+	char matrixString = "Matrix: \n";
 	for (int i = 0; i < m ; i++) {
 		matrixString += "=";
 	}
