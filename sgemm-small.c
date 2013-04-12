@@ -41,15 +41,24 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		C = cbuffer;
 	}
 	for(int j = 0; j < n; j = j++) {
+	//	__m128 cVectors[n / ROLL_SIZE];
+	//	for (int l = 0; l < n; l = l + ROLL_SIZE) {
+	//		cVectors[l / ROLL_SIZE] = _mm_loadu_ps(C+l+j*n);
+	//	}
 		for(int k = 0; k < m; k++) {
+			__m128 transposeVector = _mm_load1_ps(A+j*(n+1)+k*n);
 			for(int i = 0; i < n; i = i + ROLL_SIZE) {
-				__m128 result = _mm_mul_ps(_mm_loadu_ps(A+i+k*n), _mm_load1_ps(A+j*(n+1)+k*n));
+				__m128 result = _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector);
 				result = _mm_add_ps(_mm_loadu_ps(C+i+j*n), result);
+				//cVectors[i/ROLL_SIZE] = _mm_add_ps(cVectors[i/ROLL_SIZE], result);
 				_mm_storeu_ps(C+i+j*n, result);
 			}
 		}
+	//	for (int l = 0; l < n; l = l + ROLL_SIZE) {
+	//		_mm_storeu_ps(C+l+j*n, cVectors[l/ROLL_SIZE]);
+	//	}
 	}
-	printMatrix(n, m, C);
+	//printMatrix(n, m, C);
 	if ( n % ROLL_SIZE != 0) {
 		for (int i = 0; i < n; i++) {
 			memcpy(temp + i*n, C + i*(n + n % ROLL_SIZE), n*(sizeof(float)));
