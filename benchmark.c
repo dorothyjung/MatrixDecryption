@@ -30,12 +30,12 @@ int main( int argc, char **argv )
 {
   srand(time(NULL));
 
-  	for( int n = 32; n < 100; n = n+1+n/3 )
-//	for( int n = 40; n <  41; n = n+1+n/3 )
+//  	for( int n = 32; n < 100; n = n+1+n/3 )
+  	for( int n = 40; n <  41; n = n+1+n/3 )
 	{
   /* Try different m */
-  for( int m = 32; m <  100; m = m+1+m/3 )
-//for( int m = 48; m <  49; m = m+1+m/3 )
+//  for( int m = 32; m <  100; m = m+1+m/3 )
+  for( int m = 48; m <  49; m = m+1+m/3 )
   {
     /* Allocate and fill 2 random matrices A, C */
     float *A = (float*) malloc( (n+m) * n * sizeof(float) );
