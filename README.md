@@ -1,7 +1,7 @@
 MatrixDecryption
 ================
 
-1. Use SSE Instructions (see lab 7)
+1. Use SSE Instructions (see lab 7): DONE
 
 load C[j*n to j*n+n] in a register on the outermost loop (j).
 -store C[j*n to j*n+n] back into memory (sse)
@@ -10,7 +10,7 @@ load A[k*n to k*n+m] in a register on the 2nd loop (k).
 leave innermost loop(i) as is
 
 
-2. Optimize loop ordering (see lab 5)
+2. Optimize loop ordering (see lab 5): DONE
 -j
 -k
 -i
@@ -32,7 +32,7 @@ Use hadd to unroll loop further; i.e. more iterations covered by horizontal addi
 increment every loop by 4*(num of unrolled iterations)
 unroll iterations of i (innermost loop)
 
-fringe case: use same method as lab07 (sum.c), add extra check so that variable le less than height/width??
+fringe case: use same method as lab07 (sum.c), add extra check so that variable le less than height/width: DONE
 
 5. Cache Blocking - next
 optimal number of blocks to have
