@@ -27,12 +27,13 @@ void printMatrix(int n, int m, float *A) {
 void sgemm( int m, int n, int d, float *A, float *C )
 {
 	float *temp;
-	if ((n % ROLL_SIZE) != 0) {
+	int newsize = n + ROLL_SIZE - (n % ROLL_SIZE), width = n+d;
+	int i, j, k, isFringe = (n % ROLL_SIZE != 0);
+	if (isFringe) {
 		// pad matrix with 0s if not divisible by 4
-	    int newsize = n + ROLL_SIZE - (n % ROLL_SIZE);
-	    float buffer[newsize * (n+d)];
-	    memset(buffer, 0, (newsize * (n+d))*sizeof(float));
-		for (int i = 0; i < n+d; i++) {
+	    float buffer[newsize * width];
+	    memset(buffer, 0, (newsize * width)*sizeof(float));
+	    for (i = 0; i < width; i++) {
 		    memcpy(buffer + i*newsize, A + i*n, n*(sizeof(float)));
 		}
 		A = buffer;
@@ -41,19 +42,19 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		memset(cbuffer, 0, (newsize * newsize)*sizeof(float));
 		C = cbuffer;
 	}
-	for(int j = 0; j < n; j = j++) {
-		for(int k = 0; k < m; k++) {
+	for(j = 0; j < n; j++) {
+		for(k = 0; k < m; k++) {
 			__m128 transposeVector = _mm_load1_ps(A+j*(n+1)+k*n);
-			for(int i = 0; i < n; i = i + ROLL_SIZE) {
+			for(i = 0; i < n; i += ROLL_SIZE) {
 				_mm_storeu_ps(C+i+j*n, _mm_add_ps(_mm_loadu_ps(C+i+j*n), _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector)));
 				_mm_storeu_ps(C+i+j*n+4, _mm_add_ps(_mm_loadu_ps(C+i+j*n+4), _mm_mul_ps(_mm_loadu_ps(A+i+k*n+4), transposeVector)));
 			}
 		}
 	}
 	//printMatrix(n, m, C);
-	if ( n % ROLL_SIZE != 0) {
-		for (int i = 0; i < n; i++) {
-		    memcpy(temp + i*n, C + i*(n + ROLL_SIZE - (n % ROLL_SIZE)), n*(sizeof(float)));
+	if (isFringe) {
+		for (i = 0; i < n; i++) {
+		    memcpy(temp + i*n, C + i*newsize, n*(sizeof(float)));
 		}
 	}
 }
