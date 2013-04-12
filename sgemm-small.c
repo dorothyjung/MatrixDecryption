@@ -33,8 +33,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 	    float buffer[newsize * (n+d)];
 	    memset(buffer, 0, (newsize * m)*sizeof(float));
 		for (int i = 0; i < n+d; i++) {
-			memcpy(buffer + i*n, A + i*n, n*(sizeof(float)));
-			//		    memcpy(buffer + i*(n + (n % ROLL_SIZE)), A + i*n, n*(sizeof(float)));
+		    memcpy(buffer + i*newsize, A + i*n, n*(sizeof(float)));
 		}
 		A = buffer;
 		temp = C;
