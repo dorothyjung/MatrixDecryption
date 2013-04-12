@@ -43,7 +43,7 @@ void printMatrix(int n, int m, float *A) {
 	}
 	matrixString += "\n";
 	for (int i = 0; i < m; i++) {
-		// add string rep here
+		
 	}
 
 }
