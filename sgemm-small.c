@@ -3,7 +3,7 @@
 #include <nmmintrin.h>
 #include <string.h>
 
-#define ROLL_SIZE 8
+#define ROLL_SIZE 12
 
 void printMatrix(int n, int m, float *A) {
     printf("Matrix: \n");
@@ -46,6 +46,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			for(int i = 0; i < n; i = i + ROLL_SIZE) {
 				_mm_storeu_ps(C+i+j*n, _mm_add_ps(_mm_loadu_ps(C+i+j*n), _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector)));
 				_mm_storeu_ps(C+i+j*n+4, _mm_add_ps(_mm_loadu_ps(C+i+j*n+4), _mm_mul_ps(_mm_loadu_ps(A+i+k*n+4), transposeVector)));
+				_mm_storeu_ps(C+i+j*n+8, _mm_add_ps(_mm_loadu_ps(C+i+j*n+8), _mm_mul_ps(_mm_loadu_ps(A+i+k*n+8), transposeVector)));
 			}
 		}
 	}
