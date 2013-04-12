@@ -37,7 +37,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		}
 		A = buffer;
 		temp = C;
-		float cbuffer[(n + ROLL_SIZE-(n % ROLL_SIZE)) * (n + (n % ROLL_SIZE))];
+		float cbuffer[(n + ROLL_SIZE-(n % ROLL_SIZE)) * (n + ROLL_SIZE-(n % ROLL_SIZE))];
 		memset(cbuffer, 0, ((n + ROLL_SIZE-(n % ROLL_SIZE)) * (n + ROLL_SIZE-(n % ROLL_SIZE)))*sizeof(float));
 		C = cbuffer;
 	}
