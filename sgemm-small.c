@@ -52,20 +52,20 @@ void sgemm( int m, int n, int d, float *A, float *C )
 						cReg+= _mm_mul_ps(ab0, _mm_loadu_ps(A+j*(n+1)+k*(n)+4));
 						break;
 					case 1:
-						cReg+= _mm_mul_ps(a0, _mm_loadu_ps(A+j*(n+1)+k*(n)));
-						cReg+= _mm_mul_ps(ab0, _mm_loadu_ps(A+j*(n+1)+k*(n)+4));
+						cReg+= _mm_mul_ps(a1, _mm_loadu_ps(A+j*(n+1)+k*(n)));
+						cReg+= _mm_mul_ps(ab1, _mm_loadu_ps(A+j*(n+1)+k*(n)+4));
 						break;
 					case 2:
-						cReg+= _mm_mul_ps(a0, _mm_loadu_ps(A+j*(n+1)+k*(n)));
-						cReg+= _mm_mul_ps(ab0, _mm_loadu_ps(A+j*(n+1)+k*(n)+4));
+						cReg+= _mm_mul_ps(a2, _mm_loadu_ps(A+j*(n+1)+k*(n)));
+						cReg+= _mm_mul_ps(ab2, _mm_loadu_ps(A+j*(n+1)+k*(n)+4));
 						break;
 					case 3:
-						cReg+= _mm_mul_ps(a0, _mm_loadu_ps(A+j*(n+1)+k*(n)));
-						cReg+= _mm_mul_ps(ab0, _mm_loadu_ps(A+j*(n+1)+k*(n)+4));
+						cReg+= _mm_mul_ps(a3, _mm_loadu_ps(A+j*(n+1)+k*(n)));
+						cReg+= _mm_mul_ps(ab3, _mm_loadu_ps(A+j*(n+1)+k*(n)+4));
 						break;
 					case 4:
-						cReg+= _mm_mul_ps(a0, _mm_loadu_ps(A+j*(n+1)+k*(n)));
-						cReg+= _mm_mul_ps(ab0, _mm_loadu_ps(A+j*(n+1)+k*(n)+4));
+						cReg+= _mm_mul_ps(a4, _mm_loadu_ps(A+j*(n+1)+k*(n)));
+						cReg+= _mm_mul_ps(ab4, _mm_loadu_ps(A+j*(n+1)+k*(n)+4));
 						break;
 					default:
 						cReg+= _mm_mul_ps(_mm_loadu_ps(A+i+k*(n)), _mm_loadu_ps(A+j*(n+1)+k*(n)));
