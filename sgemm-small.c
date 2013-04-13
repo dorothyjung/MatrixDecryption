@@ -32,16 +32,16 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		// TODO: padding code
 	}
 	for( int i = 0; i < n; i++ ) {
-		a0 = _mm_loadu_ps(A+i+0*n);
-		a1 = _mm_loadu_ps(A+i+n);
-		a2 = _mm_loadu_ps(A+i+2*n);
-		a3 = _mm_loadu_ps(A+i+3*n);
-		a4 = _mm_loadu_ps(A+i+4*n);
-		ab0 = _mm_loadu_ps(A+i+0*n+4);
-		ab1 = _mm_loadu_ps(A+i+n+4);
-		ab2 = _mm_loadu_ps(A+i+2*n+4);
-		ab3 = _mm_loadu_ps(A+i+3*n+4);
-		ab4 = _mm_loadu_ps(A+i+4*n+4);
+		__m128 a0 = _mm_loadu_ps(A+i+0*n);
+		__m128 a1 = _mm_loadu_ps(A+i+n);
+		__m128 a2 = _mm_loadu_ps(A+i+2*n);
+		__m128 a3 = _mm_loadu_ps(A+i+3*n);
+		__m128 a4 = _mm_loadu_ps(A+i+4*n);
+		__m128 ab0 = _mm_loadu_ps(A+i+0*n+4);
+		__m128 ab1 = _mm_loadu_ps(A+i+n+4);
+		__m128 ab2 = _mm_loadu_ps(A+i+2*n+4);
+		__m128 ab3 = _mm_loadu_ps(A+i+3*n+4);
+		__m128 ab4 = _mm_loadu_ps(A+i+4*n+4);
     	for( int j = 0; j < n; j++ ) { 
     		__m128 cReg = _mm_loadu_ps(C+i+j*n);
       		for( int k = 0; k < m; k+= ROLL_SIZE ) { 
