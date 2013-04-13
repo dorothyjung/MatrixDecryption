@@ -5,8 +5,6 @@
 
 #define ROLL_SIZE 8
 #define BLOCK_SIZE 8
-#define C(i) _mm_loadu_ps(C+i*ROLL_SIZE+j*n);
-#define CV(i) _mm_loadu_ps(C+i*ROLL_SIZE+j*n+4);
 
 void printMatrix(int n, int m, float *A) {
     printf("Matrix: \n");
