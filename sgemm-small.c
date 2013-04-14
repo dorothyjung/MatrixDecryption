@@ -43,7 +43,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		__m128 ab3 = _mm_loadu_ps(A+i+3*n+4);
 		__m128 ab4 = _mm_loadu_ps(A+i+4*n+4);
     	for( int j = 0; j < n; j++ ) { 
-    		__m128 cReg = _mm_loadu_ps(C+i+j*n);
+    		__m128 cReg = _mm_load1_ps(C+i+j*n);
       		for( int k = 0; k < m; k+= ROLL_SIZE ) { 
 				switch(k*ROLL_SIZE) {
 					case 0:
