@@ -3,9 +3,6 @@
 #include <nmmintrin.h>
 #include <string.h>
 
-#define ROLL_SIZE 8
-#define BLOCK_SIZE 8
-
 void printMatrix(int n, int m, float *A) {
     printf("Matrix: \n");
     for (int i = 0; i < m ; i++) {
@@ -27,85 +24,66 @@ void printMatrix(int n, int m, float *A) {
 
 void sgemm( int m, int n, int d, float *A, float *C )
 {
-	/* float *temp; */
-	/* int newsize = n + ROLL_SIZE - (n % ROLL_SIZE), width = n+d; */
-	/* int i, j, k, isFringe = (n % ROLL_SIZE != 0); */
-	/* if (isFringe) { */
-	/* 	// pad matrix with 0s if not divisible by 4 */
-	/*     float buffer[newsize * width]; */
-	/*     memset(buffer, 0, (newsize * width)*sizeof(float)); */
-	/*     for (i = 0; i < width; i++) { */
-	/* 	    memcpy(buffer + i*newsize, A + i*n, n*(sizeof(float))); */
-	/* 	} */
-	/* 	A = buffer; */
-	/* 	temp = C; */
-	/* 	float cbuffer[newsize * newsize]; */
-	/* 	memset(cbuffer, 0, (newsize * newsize)*sizeof(float)); */
-	/* 	C = cbuffer; */
-	/* } */
-	/* for(j = 0; j < n; j++) { */
-	/* 	for(k = 0; k < m; k++) { */
-	/* 		__m128 transposeVector = _mm_load1_ps(A+j*(n+1)+k*n); */
-	/* 		for(i = 0; i < n; i += ROLL_SIZE) { */
-	/* 			_mm_storeu_ps(C+i+j*n, _mm_add_ps(_mm_loadu_ps(C+i+j*n), _mm_mul_ps(_mm_loadu_ps(A+i+k*n), transposeVector))); */
-	/* 			_mm_storeu_ps(C+i+j*n+4, _mm_add_ps(_mm_loadu_ps(C+i+j*n+4), _mm_mul_ps(_mm_loadu_ps(A+i+k*n+4), transposeVector))); */
-	/* 		} */
-	/* 	} */
-	/* } */
-	/* //printMatrix(n, m, C); */
-	/* if (isFringe) { */
-	/* 	for (i = 0; i < n; i++) { */
-	/* 	    memcpy(temp + i*n, C + i*newsize, n*(sizeof(float))); */
+    int i,j,k,k1,k2,j1,j2,jn,kn,n1=n+1;
+    __m128 Ajk,Ajk1,Ajk2,Aj1k,Aj1k1,Aj1k2,Cij,Cij1,Aik,Aik1,Aik2,sumj,sumj1;
+	for(k = 0; k < m/3*3; k+=3){
+	    k1 = k+1; k2 = k+2;
+		for(j = 0; j < n/2*2; j+=2){
+			j1 = j+1; j2 = j+2;
+			Ajk =  _mm_load1_ps(A+j*n1+k*n);
+			Ajk1 =  _mm_load1_ps(A+j*n1+(k1)*n);
+			Ajk2 = _mm_load1_ps(A+j*n1+(k2)*n);
+             			
+			Aj1k = _mm_load1_ps(A+j1*n1+(k)*n);
+			Aj1k1 = _mm_load1_ps(A+j1*n1+(k1)*n);
+			Aj1k2 = _mm_load1_ps(A+j1*n1+(k2)*n);
+			
+			for(i = 0; i < n/4*4; i+=4){
+				Cij = _mm_loadu_ps(C+i+j*n);
+				Cij1 = _mm_loadu_ps(C+i+j1*n);
 
-	/* Matrix Padding */
-	if (n % ROLL_SIZE != 0) {
-		// TODO: padding code
-	}
-	for( int i = 0; i < n; i++ ) {
-		__m128 a0 = _mm_loadu_ps(A+i+0*n);
-		__m128 a1 = _mm_loadu_ps(A+i+n);
-		__m128 a2 = _mm_loadu_ps(A+i+2*n);
-		__m128 a3 = _mm_loadu_ps(A+i+3*n);
-		__m128 a4 = _mm_loadu_ps(A+i+4*n);
-		__m128 ab0 = _mm_loadu_ps(A+i+0*n+4);
-		__m128 ab1 = _mm_loadu_ps(A+i+n+4);
-		__m128 ab2 = _mm_loadu_ps(A+i+2*n+4);
-		__m128 ab3 = _mm_loadu_ps(A+i+3*n+4);
-		__m128 ab4 = _mm_loadu_ps(A+i+4*n+4);
-    	for( int j = 0; j < n; j++ ) { 
-    		__m128 cReg = _mm_load1_ps(C+i+j*n);
-      		for( int k = 0; k < m; k+= ROLL_SIZE ) { 
-				switch(k*ROLL_SIZE) {
-					case 0:
-						cReg = _mm_add_ps(cReg, _mm_mul_ps(a0, _mm_loadu_ps(A+j*(n+1)+k*(n))));
-						cReg = _mm_add_ps(cReg, _mm_mul_ps(ab0, _mm_loadu_ps(A+j*(n+1)+k*(n)+4)));
-						break;
-					case 1:
-						cReg = _mm_add_ps(cReg, _mm_mul_ps(a1, _mm_loadu_ps(A+j*(n+1)+k*(n))));
-						cReg = _mm_add_ps(cReg, _mm_mul_ps(ab1, _mm_loadu_ps(A+j*(n+1)+k*(n)+4)));
-						break;
-					case 2:
-						cReg = _mm_add_ps(cReg, _mm_mul_ps(a2, _mm_loadu_ps(A+j*(n+1)+k*(n))));
-						cReg = _mm_add_ps(cReg, _mm_mul_ps(ab2, _mm_loadu_ps(A+j*(n+1)+k*(n)+4)));
-						break;
-					case 3:
-						cReg = _mm_add_ps(cReg, _mm_mul_ps(a3, _mm_loadu_ps(A+j*(n+1)+k*(n))));
-						cReg = _mm_add_ps(cReg, _mm_mul_ps(ab3, _mm_loadu_ps(A+j*(n+1)+k*(n)+4)));
-						break;
-					case 4:
-						cReg = _mm_add_ps(cReg, _mm_mul_ps(a4, _mm_loadu_ps(A+j*(n+1)+k*(n))));
-						cReg = _mm_add_ps(cReg, _mm_mul_ps(ab4, _mm_loadu_ps(A+j*(n+1)+k*(n)+4)));
-						break;
-					default:
-						cReg = _mm_add_ps(cReg, _mm_mul_ps(_mm_loadu_ps(A+i+k*(n)), _mm_loadu_ps(A+j*(n+1)+k*(n))));
-						cReg = _mm_add_ps(cReg, _mm_mul_ps(_mm_loadu_ps(A+i+k*(n)+4), _mm_loadu_ps(A+j*(n+1)+k*(n)+4)));
-						break;
-				}
+				Aik = _mm_loadu_ps(A+i+k*n);
+				Aik1 = _mm_loadu_ps(A+i+(k1)*n);
+				Aik2 = _mm_loadu_ps(A+i+(k2)*n);
+
+				sumj = _mm_add_ps(_mm_mul_ps(Ajk2, Aik2), _mm_add_ps(_mm_mul_ps(Ajk1, Aik1), _mm_add_ps(_mm_mul_ps(Ajk, Aik), Cij)));
+				sumj1 = _mm_add_ps(_mm_mul_ps(Aj1k2, Aik2), _mm_add_ps(_mm_mul_ps(Aj1k1, Aik1), _mm_add_ps(_mm_mul_ps(Aj1k, Aik), Cij1)));
+				
+				_mm_storeu_ps(C+i+j*n, sumj);
+				_mm_storeu_ps(C+i+j1*n, sumj1);
 			}
-			__m128 r1 = _mm_hadd_ps(cReg, cReg);
-			__m128 r2 = _mm_hadd_ps(r1, r1);
-			_mm_store_ss(C+i+j*n, r2);
 		}
 	}
+	for (i = n/4*4; i < n; i++) {
+	    for(k = 0; k < m/3*3; k+=3){
+		for(j = 0; j < n; j++) {
+		    C[i+j*n] = A[i+k*n] * A[j*n1+k*n] + C[i+j*n];
+		    C[i+j*n] = A[i+(k+1)*n] * A[j*n1+(k+1)*n] + C[i+j*n];			    
+		    C[i+j*n] = A[i+(k+2)*n] * A[j*n1+(k+2)*n] + C[i+j*n];
+		}
+	    } 
+	}
+	for(j = n/2*2; j < n; j++){
+	    jn = j*n;
+	    for(k = 0; k < m/3*3; k++){
+		kn = k*n;
+		Ajk =  _mm_load1_ps(A+j*n1+kn);
+		for(i = 0; i < n/4*4; i+=4){
+		    _mm_storeu_ps(C+i+jn, _mm_add_ps(_mm_mul_ps(Ajk, _mm_loadu_ps(A+i+kn)), _mm_loadu_ps(C+i+jn)));
+		}
+	    }
+	}		    	
+	for(k = m/3*3; k < m; k++){
+	    kn = k*n;
+		for(j = 0; j < n; j++){
+		    jn = j*n;
+		    Ajk =  _mm_load1_ps(A+j*n1+kn);
+			for(i = 0; i < n/4*4; i+=4){
+				_mm_storeu_ps(C+i+jn, _mm_add_ps(_mm_mul_ps(Ajk, _mm_loadu_ps(A+i+kn)), _mm_loadu_ps(C+i+jn)));
+			}
+			for (i = n/4*4; i < n; i++) {
+			    C[i+jn] =A[i+kn] * A[j*n1+kn] + C[i+jn];
+			}
+		}
+	}	
 }
-
