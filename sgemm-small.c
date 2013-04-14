@@ -72,7 +72,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 						break;
 				}
 			}
-			_mm_storeu_ps(C+i+j*n, cReg);
+			_mm_store_ss(C+i+j*n, cReg);
 		}
 	}
 }
