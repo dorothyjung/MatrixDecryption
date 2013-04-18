@@ -42,7 +42,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			}
 		}
 
-		for (i = n4; i < n; i++) {
+		for (int i = n4; i < n; i++) {
 		    for(k = 0; k < m3; k+=3){
 			for(j = 0; j < n; j++) {
 			    C[i+j*n] = A[i+k*n] * A[j*n1+k*n] + C[i+j*n];
@@ -58,7 +58,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		    for(k = 0; k < m3; k++){
 				kn = k*n;
 				Ajk =  _mm_load1_ps(A+j*n1+kn);
-				for(i = 0; i < n4; i+=4){
+				for(int i = 0; i < n4; i+=4){
 			    	_mm_storeu_ps(C+i+jn, _mm_add_ps(_mm_mul_ps(Ajk, _mm_loadu_ps(A+i+kn)), _mm_loadu_ps(C+i+jn)));
 				}
 		    }
@@ -69,7 +69,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			for(j = 0; j < n; j++){
 			    jn = j*n;
 			    Ajk =  _mm_load1_ps(A+j*n1+kn);
-				for(i = 0; i < n4; i+=4){
+				for(int i = 0; i < n4; i+=4){
 					_mm_storeu_ps(C+i+jn, _mm_add_ps(_mm_mul_ps(Ajk, _mm_loadu_ps(A+i+kn)), _mm_loadu_ps(C+i+jn)));
 				}
 				for (i = n4; i < n; i++) {
