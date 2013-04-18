@@ -54,7 +54,6 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		    } 
 		}
 
-		#pragma omp for
 		for(j = n2; j < n; j++){
 		    jn = j*n;
 		    for(k = 0; k < m3; k++){
@@ -65,8 +64,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				}
 		    }
 		}	
-  
-		#pragma omp for	
+  	
 		for(k = m3; k < m; k++){
 		    kn = k*n;
 			for(j = 0; j < n; j++){
