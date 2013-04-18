@@ -6,13 +6,13 @@
 
 void sgemm( int m, int n, int d, float *A, float *C )
 {
-	#pragma omp parallel
-	{
 	    int i,j,k,k1,k2,j1,j2,jn,kn,n2, m3, n4, n1=n+1;
 	    __m128 Ajk,Ajk1,Ajk2,Aj1k,Aj1k1,Aj1k2,Cij,Cij1,Aik,Aik1,Aik2,sumj,sumj1;
 	    n2 = n/2*2;
 	    n4 = n/4*4;
 	    m3 = m/3*3;
+	#pragma omp parallel
+	{
 	    #pragma omp for
 		for(k = 0; k < m3; k+=3){
 		    k1 = k+1; k2 = k+2;
@@ -72,7 +72,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		    }
 		}	
 	}
-		 
+
 	#pragma omp parallel
 	{   
 		#pragma omp for	
