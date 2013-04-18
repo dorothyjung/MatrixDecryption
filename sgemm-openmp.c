@@ -4,20 +4,20 @@
 #include <string.h>
 #include <omp.h>
 
-#define VERTICAL_ROLL = 8;
-#define HORIZONTAL_ROLL = 4;
+#define VERTICAL_ROLL 8
+#define HORIZONTAL_ROLL 4
 
 void sgemm( int m, int n, int d, float *A, float *C )
 {
 	int j, k , i, i1, k1, k2, k3, vpad, hpad, n1 = n + 1;
 	__m128 Cij, Aik, Ajk, Ajk1, Ajk2, Ajk3, Cij1, Ai1k, Aik1, Ai1k1, Aik2, Ai1k2, Aik3, Ai1k3;	
-	// if (n % VERTICAL_ROLL != 0) {
-	// 	vpad = n + VERTICAL_ROLL - (n % VERTICAL_ROLL);
-	// 	float Apad[vpad*(n+d)];
-	// 	for (i = 0; i < vpad; i+=vpad) {
-	// 		// copy matrix
-	// 	}
-	// }
+	if (n % VERTICAL_ROLL != 0) {
+		vpad = n + VERTICAL_ROLL - (n % VERTICAL_ROLL);
+		float Apad[vpad*(n+d)];
+		for (i = 0; i < vpad; i+=vpad) {
+			// copy matrix
+		}
+	}
 	#pragma omp parallel for
 	for (j = 0; j < n; j++) {
 		for (k = 0; k < m; k+= HORIZONTAL_ROLL) {
