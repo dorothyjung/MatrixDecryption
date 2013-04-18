@@ -44,9 +44,6 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		}
 	}
 
-	#pragma omp parallel
-	{
-		#pragma omp for
 		for (i = n4; i < n; i++) {
 		    for(k = 0; k < m3; k+=3){
 			for(j = 0; j < n; j++) {
@@ -56,10 +53,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			}
 		    } 
 		}
-	}
 
-	#pragma omp parallel
-	{
 		#pragma omp for
 		for(j = n2; j < n; j++){
 		    jn = j*n;
@@ -71,10 +65,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				}
 		    }
 		}	
-	}
-
-	#pragma omp parallel
-	{   
+  
 		#pragma omp for	
 		for(k = m3; k < m; k++){
 		    kn = k*n;
@@ -89,5 +80,4 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				}
 			}
 		}
-	}
 }
