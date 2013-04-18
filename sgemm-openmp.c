@@ -4,18 +4,29 @@
 #include <string.h>
 #include <omp.h>
 
+#define VERTICAL_ROLL = 8;
+#define HORIZONTAL_ROLL = 4;
+
 void sgemm( int m, int n, int d, float *A, float *C )
 {
-	int j, k , i, i1, k1, k2, k3, n1 = n + 1;
-	__m128 Cij, Aik, Ajk, Ajk1, Ajk2, Cij1, Ai1k, Aik1, Ai1k1, Aik2, Ai1k2, Aik3, Ai1k3;
+	int j, k , i, i1, k1, k2, k3, vpad, hpad, n1 = n + 1;
+	__m128 Cij, Aik, Ajk, Ajk1, Ajk2, Ajk3, Cij1, Ai1k, Aik1, Ai1k1, Aik2, Ai1k2, Aik3, Ai1k3;
+	if (n%VERTICAL_ROLL != 0) {
+		vpad = n + VERTICAL_ROLL - (n % VERTICAL_ROLL)
+		float Apad[vpad*(n+d)];
+		for (i = 0; i < vpad; i+=vpad) {
+			// copy matrix
+		}
+	}
 	for (j = 0; j < n; j++) {
-		for (k = 0; k < m; k+=3) {
-			k1 = k+1; k2 = k+2; k3 = k+4;
+		for (k = 0; k < m; k+= HORIZONTAL_ROLL) {
+			k1 = k+1; k2 = k+2; k3 = k+3;
+			// handle edge case here
 			Ajk = _mm_load1_ps(A+j*n1+k*n);
 			Ajk1 = _mm_load1_ps(A+j*n1+k1*n);
 			Ajk2 = _mm_load1_ps(A+j*n1+k2*n);
 			Ajk3 = _mm_load1_ps(A+j*n1+k3*n);
-			for (i = 0; i < n; i+=8) {
+			for (i = 0; i < n; i+=VERTICAL_ROLL) {
 				i1 = i+4;
 				Cij = _mm_loadu_ps(C+i+j*n);
 				Cij1 = _mm_loadu_ps(C+i1+j*n);
@@ -36,6 +47,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				_mm_storeu_ps(C+i1+j*n, _mm_add_ps(Cij1, _mm_add_ps(_mm_mul_ps(Ai1k3, Ajk3), _mm_add_ps(_mm_mul_ps(Ai1k2, Ajk2), _mm_add_ps(_mm_mul_ps(Ai1k, Ajk), _mm_mul_ps(Ai1k1, Ajk1))))));
 			}
 		}
+		// restore matrix
 	}
 	 //    int i,j,k,k1,k2,j1,j2,jn,kn,n2, m3, n4, n1=n+1;
 	 //    __m128 Ajk,Ajk1,Ajk2,Aj1k,Aj1k1,Aj1k2,Cij,Cij1,Aik,Aik1,Aik2,sumj,sumj1;
