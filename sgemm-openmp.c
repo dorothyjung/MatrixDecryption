@@ -9,7 +9,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 	int j, k , i, i1, k1, k2, n1 = n + 1;
 	__m128 Cij, Aik, Ajk, Ajk1, Ajk2, Cij1, Ai1k, Aik1, Ai1k1, Aik2, Ai1k2;
 	for (j = 0; j < n; j++) {
-		for (k = 0; k < m; k+=2) {
+		for (k = 0; k < m; k+=3) {
 			k1 = k+1; k2 = k+2;
 			Ajk = _mm_load1_ps(A+j*n1+k*n);
 			Ajk1 = _mm_load1_ps(A+j*n1+k1*n);
