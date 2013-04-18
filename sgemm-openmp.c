@@ -9,8 +9,7 @@
 
 void sgemm( int m, int n, int d, float *A, float *C )
 {
-	int j, k , i, i1, k1, k2, k3, vpad, hpad, n1 = n + 1;
-	__m128 Cij, Aik, Ajk, Ajk1, Ajk2, Ajk3, Cij1, Ai1k, Aik1, Ai1k1, Aik2, Ai1k2, Aik3, Ai1k3;	
+	int vpad, hpad, n1 = n + 1;
 	if (n % VERTICAL_ROLL != 0) {
 		vpad = n + VERTICAL_ROLL - (n % VERTICAL_ROLL);
 		float Apad[vpad*(n+d)];
@@ -19,36 +18,34 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		}
 	}
 	#pragma omp parallel for
-	for (j = 0; j < n; j++) {
-		for (k = 0; k < m; k+= HORIZONTAL_ROLL) {
-			k1 = k+1; k2 = k+2; k3 = k+3;
+	for (int j = 0; j < n; j++) {
+		for (int k = 0; k < m; k+= HORIZONTAL_ROLL) {
+			int k1 = k+1; 
+			int k2 = k+2; 
+			int k3 = k+3;
 			// handle edge case here
-			Ajk = _mm_load1_ps(A+j*n1+k*n);
-			Ajk1 = _mm_load1_ps(A+j*n1+k1*n);
-			Ajk2 = _mm_load1_ps(A+j*n1+k2*n);
-			Ajk3 = _mm_load1_ps(A+j*n1+k3*n);
-			for (i = 0; i < n; i+=VERTICAL_ROLL) {
-				i1 = i+4;
-				Cij = _mm_loadu_ps(C+i+j*n);
-				Cij1 = _mm_loadu_ps(C+i1+j*n);
+			__m128 Ajk = _mm_load1_ps(A+j*n1+k*n);
+			__m128 Ajk1 = _mm_load1_ps(A+j*n1+k1*n);
+			__m128 Ajk2 = _mm_load1_ps(A+j*n1+k2*n);
+			__m128 Ajk3 = _mm_load1_ps(A+j*n1+k3*n);
+			for (int i = 0; i < n; i+=VERTICAL_ROLL) {
+				int i1 = i+4;
+				__m128 Cij = _mm_loadu_ps(C+i+j*n);
+				__m128 Cij1 = _mm_loadu_ps(C+i1+j*n);
 
-				Aik = _mm_loadu_ps(A+i+k*n);
-				Ai1k = _mm_loadu_ps(A+i1+k*n);
+				__m128 Aik = _mm_loadu_ps(A+i+k*n);
+				__m128 Ai1k = _mm_loadu_ps(A+i1+k*n);
 
-				Aik1 = _mm_loadu_ps(A+i+k1*n);
-				Ai1k1 = _mm_loadu_ps(A+i1+k1*n);
+				__m128 Aik1 = _mm_loadu_ps(A+i+k1*n);
+				__m128 Ai1k1 = _mm_loadu_ps(A+i1+k1*n);
 
-				Aik2 = _mm_loadu_ps(A+i+k2*n);
-				Ai1k2 = _mm_loadu_ps(A+i1+k2*n);
+				__m128 Aik2 = _mm_loadu_ps(A+i+k2*n);
+				__m128 Ai1k2 = _mm_loadu_ps(A+i1+k2*n);
 
-				Aik3 = _mm_loadu_ps(A+i+k3*n);
-				Ai1k3 = _mm_loadu_ps(A+i1+k3*n);
-
-				#pragma omp critical
-				{
-					_mm_storeu_ps(C+i+j*n, _mm_add_ps(Cij, _mm_add_ps(_mm_mul_ps(Aik3, Ajk3), _mm_add_ps(_mm_mul_ps(Aik2, Ajk2), _mm_add_ps(_mm_mul_ps(Aik1, Ajk1), _mm_mul_ps(Aik, Ajk))))));
-					_mm_storeu_ps(C+i1+j*n, _mm_add_ps(Cij1, _mm_add_ps(_mm_mul_ps(Ai1k3, Ajk3), _mm_add_ps(_mm_mul_ps(Ai1k2, Ajk2), _mm_add_ps(_mm_mul_ps(Ai1k, Ajk), _mm_mul_ps(Ai1k1, Ajk1))))));
-				}
+				__m128 Aik3 = _mm_loadu_ps(A+i+k3*n);
+				__m128 Ai1k3 = _mm_loadu_ps(A+i1+k3*n);
+				_mm_storeu_ps(C+i+j*n, _mm_add_ps(Cij, _mm_add_ps(_mm_mul_ps(Aik3, Ajk3), _mm_add_ps(_mm_mul_ps(Aik2, Ajk2), _mm_add_ps(_mm_mul_ps(Aik1, Ajk1), _mm_mul_ps(Aik, Ajk))))));
+				_mm_storeu_ps(C+i1+j*n, _mm_add_ps(Cij1, _mm_add_ps(_mm_mul_ps(Ai1k3, Ajk3), _mm_add_ps(_mm_mul_ps(Ai1k2, Ajk2), _mm_add_ps(_mm_mul_ps(Ai1k, Ajk), _mm_mul_ps(Ai1k1, Ajk1))))));
 			}
 		}
 		// restore matrix
