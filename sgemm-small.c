@@ -24,21 +24,24 @@ void printMatrix(int n, int m, float *A) {
 
 void sgemm( int m, int n, int d, float *A, float *C )
 {
-    int i,j,k,k1,k2,j1,jn,kn,n1=n+1;
+    int i,j,k,k1,k2,j1,j2,jn,kn,n2, m3, n4, n1=n+1;
     __m128 Ajk,Ajk1,Ajk2,Aj1k,Aj1k1,Aj1k2,Cij,Cij1,Aik,Aik1,Aik2,sumj,sumj1;
-    for(k = 0; k < m/3*3; k+=3){
+    n2 = n/2*2;
+    n4 = n/4*4;
+    m3 = m/3*3;
+	for(k = 0; k < m3; k+=3){
 	    k1 = k+1; k2 = k+2;
-		for(j = 0; j < n/2*2; j+=2){
-			j1 = j+1;
+		for(j = 0; j < n2; j+=2){
+			j1 = j+1; j2 = j+2;
 			Ajk =  _mm_load1_ps(A+j*n1+k*n);
 			Ajk1 =  _mm_load1_ps(A+j*n1+k1*n);
 			Ajk2 = _mm_load1_ps(A+j*n1+k2*n);
              			
-			Aj1k = _mm_load1_ps(A+j1*n1+k*n);
-			Aj1k1 = _mm_load1_ps(A+j1*n1+k1*n);
-			Aj1k2 = _mm_load1_ps(A+j1*n1+k2*n);
-
-			for(i = 0; i < n/4*4; i+=4){
+			Aj1k = _mm_load1_ps(A+j1*n1+(k)*n);
+			Aj1k1 = _mm_load1_ps(A+j1*n1+(k1)*n);
+			Aj1k2 = _mm_load1_ps(A+j1*n1+(k2)*n);
+			
+			for(i = 0; i < n4; i+=4){
 				Cij = _mm_loadu_ps(C+i+j*n);
 				Cij1 = _mm_loadu_ps(C+i+j1*n);
 
@@ -53,8 +56,8 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			}
 		}
 	}
-	for (i = n/4*4; i < n; i++) {
-	    for(k = 0; k < m/3*3; k+=3){
+	for (i = n4; i < n; i++) {
+	    for(k = 0; k < m3; k+=3){
 		for(j = 0; j < n; j++) {
 		    C[i+j*n] = A[i+k*n] * A[j*n1+k*n] + C[i+j*n];
 		    C[i+j*n] = A[i+(k+1)*n] * A[j*n1+(k+1)*n] + C[i+j*n];			    
@@ -62,25 +65,25 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		}
 	    } 
 	}
-	for(j = n/2*2; j < n; j++){
+	for(j = n2; j < n; j++){
 	    jn = j*n;
-	    for(k = 0; k < m/3*3; k++){
+	    for(k = 0; k < m3; k++){
 		kn = k*n;
 		Ajk =  _mm_load1_ps(A+j*n1+kn);
-		for(i = 0; i < n/4*4; i+=4){
+		for(i = 0; i < n4; i+=4){
 		    _mm_storeu_ps(C+i+jn, _mm_add_ps(_mm_mul_ps(Ajk, _mm_loadu_ps(A+i+kn)), _mm_loadu_ps(C+i+jn)));
 		}
 	    }
 	}		    	
-	for(k = m/3*3; k < m; k++){
+	for(k = m3; k < m; k++){
 	    kn = k*n;
 		for(j = 0; j < n; j++){
 		    jn = j*n;
 		    Ajk =  _mm_load1_ps(A+j*n1+kn);
-			for(i = 0; i < n/4*4; i+=4){
+			for(i = 0; i < n4; i+=4){
 				_mm_storeu_ps(C+i+jn, _mm_add_ps(_mm_mul_ps(Ajk, _mm_loadu_ps(A+i+kn)), _mm_loadu_ps(C+i+jn)));
 			}
-			for (i = n/4*4; i < n; i++) {
+			for (i = n4; i < n; i++) {
 			    C[i+jn] =A[i+kn] * A[j*n1+kn] + C[i+jn];
 			}
 		}
