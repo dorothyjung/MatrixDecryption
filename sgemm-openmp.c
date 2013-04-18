@@ -23,21 +23,22 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				Aj1k = _mm_load1_ps(A+j1*n1+(k)*n);
 				Aj1k1 = _mm_load1_ps(A+j1*n1+(k1)*n);
 				Aj1k2 = _mm_load1_ps(A+j1*n1+(k2)*n);
+				
 				#pragma omp parallel for
-				for(i = 0; i < n4; i+=4){
-					Cij = _mm_loadu_ps(C+i+j*n);
-					Cij1 = _mm_loadu_ps(C+i+j1*n);
+					for(i = 0; i < n4; i+=4){
+						Cij = _mm_loadu_ps(C+i+j*n);
+						Cij1 = _mm_loadu_ps(C+i+j1*n);
 
-					Aik = _mm_loadu_ps(A+i+k*n);
-					Aik1 = _mm_loadu_ps(A+i+(k1)*n);
-					Aik2 = _mm_loadu_ps(A+i+(k2)*n);
+						Aik = _mm_loadu_ps(A+i+k*n);
+						Aik1 = _mm_loadu_ps(A+i+(k1)*n);
+						Aik2 = _mm_loadu_ps(A+i+(k2)*n);
 
-					sumj = _mm_add_ps(_mm_mul_ps(Ajk2, Aik2), _mm_add_ps(_mm_mul_ps(Ajk1, Aik1), _mm_add_ps(_mm_mul_ps(Ajk, Aik), Cij)));
-					sumj1 = _mm_add_ps(_mm_mul_ps(Aj1k2, Aik2), _mm_add_ps(_mm_mul_ps(Aj1k1, Aik1), _mm_add_ps(_mm_mul_ps(Aj1k, Aik), Cij1)));
-					
-					_mm_storeu_ps(C+i+j*n, sumj);
-					_mm_storeu_ps(C+i+j1*n, sumj1);
-				}
+						sumj = _mm_add_ps(_mm_mul_ps(Ajk2, Aik2), _mm_add_ps(_mm_mul_ps(Ajk1, Aik1), _mm_add_ps(_mm_mul_ps(Ajk, Aik), Cij)));
+						sumj1 = _mm_add_ps(_mm_mul_ps(Aj1k2, Aik2), _mm_add_ps(_mm_mul_ps(Aj1k1, Aik1), _mm_add_ps(_mm_mul_ps(Aj1k, Aik), Cij1)));
+						
+						_mm_storeu_ps(C+i+j*n, sumj);
+						_mm_storeu_ps(C+i+j1*n, sumj1);
+					}
 			}
 		}
 
