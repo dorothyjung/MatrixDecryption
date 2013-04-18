@@ -29,7 +29,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 	    #pragma omp for
 		for(k = 0; k < m3; k+=3){
 		    k1 = k+1; k2 = k+2;
-		    #pragma omp for
+		    
 			for(j = 0; j < n2; j+=2){
 				j1 = j+1; j2 = j+2;
 				Ajk =  _mm_load1_ps(A+j*n1+k*n);
@@ -39,7 +39,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				Aj1k = _mm_load1_ps(A+j1*n1+(k)*n);
 				Aj1k1 = _mm_load1_ps(A+j1*n1+(k1)*n);
 				Aj1k2 = _mm_load1_ps(A+j1*n1+(k2)*n);
-				#pragma omp for
+				
 				for(i = 0; i < n4; i+=4){
 					Cij = _mm_loadu_ps(C+i+j*n);
 					Cij1 = _mm_loadu_ps(C+i+j1*n);
@@ -58,9 +58,9 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		}
 		#pragma omp for
 		for (i = n4; i < n; i++) {
-			#pragma omp for
+			
 		    for(k = 0; k < m3; k+=3){
-		    #pragma omp for
+		    
 			for(j = 0; j < n; j++) {
 			    C[i+j*n] = A[i+k*n] * A[j*n1+k*n] + C[i+j*n];
 			    C[i+j*n] = A[i+(k+1)*n] * A[j*n1+(k+1)*n] + C[i+j*n];			    
@@ -71,11 +71,11 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		#pragma omp for
 		for(j = n2; j < n; j++){
 		    jn = j*n;
-		    #pragma omp for
+		    
 		    for(k = 0; k < m3; k++){
 			kn = k*n;
 			Ajk =  _mm_load1_ps(A+j*n1+kn);
-			#pragma omp for
+			
 			for(i = 0; i < n4; i+=4){
 			    _mm_storeu_ps(C+i+jn, _mm_add_ps(_mm_mul_ps(Ajk, _mm_loadu_ps(A+i+kn)), _mm_loadu_ps(C+i+jn)));
 			}
@@ -84,15 +84,15 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		#pragma omp for	
 		for(k = m3; k < m; k++){
 		    kn = k*n;
-		    #pragma omp for
+		    
 			for(j = 0; j < n; j++){
 			    jn = j*n;
 			    Ajk =  _mm_load1_ps(A+j*n1+kn);
-			    #pragma omp for
+			    
 				for(i = 0; i < n4; i+=4){
 					_mm_storeu_ps(C+i+jn, _mm_add_ps(_mm_mul_ps(Ajk, _mm_loadu_ps(A+i+kn)), _mm_loadu_ps(C+i+jn)));
 				}
-				#pragma omp for
+				
 				for (i = n4; i < n; i++) {
 				    C[i+jn] =A[i+kn] * A[j*n1+kn] + C[i+jn];
 				}
