@@ -14,17 +14,17 @@ void sgemm( int m, int n, int d, float *A, float *C )
 
 		for(k = 0; k < m3; k+=3){
 		    k1 = k+1; k2 = k+2;
-			for(j = 0; j < n2; j+=2){
-				j1 = j+1; j2 = j+2;
-				Ajk =  _mm_load1_ps(A+j*n1+k*n);
-				Ajk1 =  _mm_load1_ps(A+j*n1+(k1)*n);
-				Ajk2 = _mm_load1_ps(A+j*n1+(k2)*n);
-	             			
-				Aj1k = _mm_load1_ps(A+j1*n1+(k)*n);
-				Aj1k1 = _mm_load1_ps(A+j1*n1+(k1)*n);
-				Aj1k2 = _mm_load1_ps(A+j1*n1+(k2)*n);
-				
-				#pragma omp parallel for
+		    #pragma omp parallel for
+				for(j = 0; j < n2; j+=2){
+					j1 = j+1; j2 = j+2;
+					Ajk =  _mm_load1_ps(A+j*n1+k*n);
+					Ajk1 =  _mm_load1_ps(A+j*n1+(k1)*n);
+					Ajk2 = _mm_load1_ps(A+j*n1+(k2)*n);
+		             			
+					Aj1k = _mm_load1_ps(A+j1*n1+(k)*n);
+					Aj1k1 = _mm_load1_ps(A+j1*n1+(k1)*n);
+					Aj1k2 = _mm_load1_ps(A+j1*n1+(k2)*n);
+
 					for(i = 0; i < n4; i+=4){
 						Cij = _mm_loadu_ps(C+i+j*n);
 						Cij1 = _mm_loadu_ps(C+i+j1*n);
@@ -39,7 +39,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 						_mm_storeu_ps(C+i+j*n, sumj);
 						_mm_storeu_ps(C+i+j1*n, sumj1);
 					}
-			}
+				}
 		}
 
 		for (i = n4; i < n; i++) {
