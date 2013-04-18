@@ -24,7 +24,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				Aj1k = _mm_load1_ps(A+j1*n1+(k)*n);
 				Aj1k1 = _mm_load1_ps(A+j1*n1+(k1)*n);
 				Aj1k2 = _mm_load1_ps(A+j1*n1+(k2)*n);
-				#pragma omp for
+				#pragma omp parallel for
 				for(i = 0; i < n4; i+=4){
 					Cij = _mm_loadu_ps(C+i+j*n);
 					Cij1 = _mm_loadu_ps(C+i+j1*n);
