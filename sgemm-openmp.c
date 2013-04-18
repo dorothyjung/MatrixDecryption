@@ -6,15 +6,16 @@
 
 void sgemm( int m, int n, int d, float *A, float *C )
 {
-	int j, k , i, i1, k1, n1 = n + 1;
-	__m128 Cij, Aik, Ajk Cij1, Ai1k, Aik1, Ai1k1;
+	int j, k , i, i1, k1, k2, n1 = n + 1;
+	__m128 Cij, Aik, Ajk, Ajk1, Ajk2, Cij1, Ai1k, Aik1, Ai1k1, Aik2, Ai1k2;
 	for (j = 0; j < n; j++) {
 		for (k = 0; k < m; k+=2) {
-			k1 = k+1;
+			k1 = k+1; k2 = k+2;
 			Ajk = _mm_load1_ps(A+j*n1+k*n);
 			Ajk1 = _mm_load1_ps(A+j*n1+k1*n);
+			Ajk2 = _mm_load1_ps(A+j*n1+k2*n);
 			for (i = 0; i < n; i+=8) {
-				i1 = i+1;
+				i1 = i+4;
 				Cij = _mm_loadu_ps(C+i+j*n);
 				Cij1 = _mm_loadu_ps(C+i1+j*n);
 
@@ -24,9 +25,11 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				Aik1 = _mm_loadu_ps(A+i+k1*n);
 				Ai1k1 = _mm_loadu_ps(A+i1+k1*n);
 
-				_mm_storeu_ps(C+i+j*n, _mm_add_ps(Cij, _mm_add_ps(_mm_mul_ps(Aik1, Ajk1), _mm_mul_ps(Aik, Ajk))));
-				_mm_storeu_ps(C+i1+j*n, _mm_add_ps(Cij1, _mm_add_ps(_mm_mul_ps(Ai1k, Ajk), _mm_mul_ps(Ai1k1, Ajk1))));
+				Aik2 = _mm_loadu_ps(A+i+k2*n);
+				Ai1k2 = _mm_loadu_ps(A+i1+k2*n);
 
+				_mm_storeu_ps(C+i+j*n, _mm_add_ps(Cij, _mm_add_ps(_mm_mul_ps(Aik2, Ajk2), _mm_add_ps(_mm_mul_ps(Aik1, Ajk1), _mm_mul_ps(Aik, Ajk)))));
+				_mm_storeu_ps(C+i1+j*n, _mm_add_ps(Cij1, _mm_add_ps(_mm_mul_ps(Ai1k2, Ajk2), _mm_add_ps(_mm_mul_ps(Ai1k, Ajk), _mm_mul_ps(Ai1k1, Ajk1)))));
 			}
 		}
 	}
