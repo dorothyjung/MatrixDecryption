@@ -33,15 +33,18 @@ void sgemm( int m, int n, int d, float *A, float *C )
 						}
 					}else {
 						Ajk3 = _mm_setzero_ps();
+						Ajk4 = _mm_setzero_ps();
 					}
 				}else {
 					Ajk2 = _mm_setzero_ps();
 					Ajk3 = _mm_setzero_ps();
+					Ajk4 = _mm_setzero_ps();
 				}
 			}else {
 				Ajk1 = _mm_setzero_ps();
 				Ajk2 = _mm_setzero_ps();
 				Ajk3 = _mm_setzero_ps();
+				Ajk4 = _mm_setzero_ps();
 			}
 			for (int i = 0; i < n; i+=VERTICAL_ROLL) {
 				int i1 = i+4;
