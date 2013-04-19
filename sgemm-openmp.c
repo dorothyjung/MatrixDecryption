@@ -13,7 +13,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 	if (n % VERTICAL_ROLL != 0) {
 		vpad = n + VERTICAL_ROLL - (n % VERTICAL_ROLL);
 		float Apad[vpad*(n+d)];
-		for (i = 0; i < vpad; i+=vpad) {
+		for (int i = 0; i < vpad; i+=vpad) {
 			// copy matrix
 		}
 	}
@@ -24,10 +24,26 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			int k2 = k+2; 
 			int k3 = k+3;
 			// handle edge case here
-			__m128 Ajk = _mm_load1_ps(A+j*n1+k*n);
-			__m128 Ajk1 = _mm_load1_ps(A+j*n1+k1*n);
-			__m128 Ajk2 = _mm_load1_ps(A+j*n1+k2*n);
-			__m128 Ajk3 = _mm_load1_ps(A+j*n1+k3*n);
+			__m128 Ajk, Ajk1, Ajk2, Ajk3;
+			Ajk = _mm_load1_ps(A+j*n1+k*n);
+			if (k1 < m) {
+				Ajk1 = _mm_load1_ps(A+j*n1+k1*n);
+				if (k2 < m) {
+					Ajk2 = _mm_load1_ps(A+j*n1+k2*n);
+					if (k3 < m) {
+						Ajk3 = _mm_load1_ps(A+j*n1+k3*n);
+					}else {
+						Ajk3 = _mm_setzero_ps();
+					}
+				}else {
+					Ajk2 = _mm_setzero_ps();
+					Ajk3 = _mm_setzero_ps();
+				}
+			}else {
+				Ajk1 = _mm_setzero_ps();
+				Ajk2 = _mm_setzero_ps();
+				Ajk3 = _mm_setzero_ps();
+			}
 			for (int i = 0; i < n; i+=VERTICAL_ROLL) {
 				int i1 = i+4;
 				__m128 Cij = _mm_loadu_ps(C+i+j*n);
