@@ -58,7 +58,45 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			}
 		}
 	}		
+	for (int j = 0; j < n; j++) {
+		for (int k = 0; k < m; k+= HORIZONTAL_ROLL) {
+			int k1 = k+1; 
+			int k2 = k+2; 
+			int k3 = k+3;
+			// handle edge case here
+			__m128 Ajk, Ajk1, Ajk2, Ajk3;
+			Ajk = _mm_load1_ps(A+j*n1+k*n);
+			if (k1 < m) {
+				Ajk1 = _mm_load1_ps(A+j*n1+k1*n);
+				if (k2 < m) {
+					Ajk2 = _mm_load1_ps(A+j*n1+k2*n);
+					if (k3 < m) {
+						Ajk3 = _mm_load1_ps(A+j*n1+k3*n);
+					}else {
+						Ajk3 = _mm_setzero_ps();
+					}
+				}else {
+					Ajk2 = _mm_setzero_ps();
+					Ajk3 = _mm_setzero_ps();
+				}
+			}else {
+				Ajk1 = _mm_setzero_ps();
+				Ajk2 = _mm_setzero_ps();
+				Ajk3 = _mm_setzero_ps();
+			}
+			for (int i = n/VERTICAL_ROLL*VERTICAL_ROLL; i < n; i++) {
+				int i1 = i+4;
+				__m128 Cij = _mm_load1_ps(C+i+j*n);
+				__m128 Aik = _mm_load1_ps(A+i+k*n);
+				__m128 Aik1 = _mm_load1_ps(A+i+k1*n);
+				__m128 Aik2 = _mm_load1_ps(A+i+k2*n);
+				__m128 Aik3 = _mm_load1_ps(A+i+k3*n);
+				_mm_store_ss(C+i+j*n, _mm_add_ps(Cij, _mm_add_ps(_mm_mul_ps(Aik3, Ajk3), _mm_add_ps(_mm_mul_ps(Aik2, Ajk2), _mm_add_ps(_mm_mul_ps(Aik1, Ajk1), _mm_mul_ps(Aik, Ajk))))));
+			}
+		}
+	}		
 
+	
 	 //    int i,j,k,k1,k2,j1,j2,jn,kn,n2, m3, n4, n1=n+1;
 	 //    __m128 Ajk,Ajk1,Ajk2,Aj1k,Aj1k1,Aj1k2,Cij,Cij1,Aik,Aik1,Aik2,sumj,sumj1;
 	 //    n2 = n/2*2;
