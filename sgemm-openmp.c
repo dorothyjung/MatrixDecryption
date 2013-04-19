@@ -9,23 +9,7 @@
 
 void sgemm( int m, int n, int d, float *A, float *C )
 {
-    float *temp; int n1 = n+1;
-	if (n % VERTICAL_ROLL != 0) {
-
-	    int length = n + VERTICAL_ROLL - (n % VERTICAL_ROLL);
-	    float Apad[length*(n+d)];
-	    memset(Apad, 0, (length*(n + d))*sizeof(float));		
-	    
-	    for (int i = 0; i < (n+d); i++) {
-		memcpy(Apad + i*length, A + i*n, n*(sizeof(float)));
-	    }
-	    
-	    A = Apad;
-	    float Cpad[length*length]; temp = C;
-	    memset(Cpad, 0, (length*length)*sizeof(float));
-	    C = Cpad;
-	}
-
+    int n1 = n+1;
 	#pragma omp parallel for
 	for (int j = 0; j < n; j++) {
 		for (int k = 0; k < m; k+= HORIZONTAL_ROLL) {
@@ -74,15 +58,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			}
 		}
 	}		
-	if (n % VERTICAL_ROLL != 0) {
 
-	    int length = n + VERTICAL_ROLL - (n % VERTICAL_ROLL);
-	    for (int i = 0; i < n; i++) {
-		memcpy(temp + i*n, C + i*length, n*(sizeof(float)));
-	    }
-	    C = temp;
-
-	}
 	 //    int i,j,k,k1,k2,j1,j2,jn,kn,n2, m3, n4, n1=n+1;
 	 //    __m128 Ajk,Ajk1,Ajk2,Aj1k,Aj1k1,Aj1k2,Cij,Cij1,Aik,Aik1,Aik2,sumj,sumj1;
 	 //    n2 = n/2*2;
@@ -153,3 +129,4 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		// 	}
 		// }
 }
+
