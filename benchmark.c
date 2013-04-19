@@ -44,17 +44,8 @@ int main( int argc, char **argv )
     loopEnd = 10;
   }
 
-<<<<<<< HEAD
-  //for( int n = 32; n < 100; n = n+1+n/3 )
-  	for( int n = 40; n <  100; n = n+1+n/3 )
-	{
-  /* Try different m */
-  //for( int m = 32; m <  100; m = m+1+m/3 )
-  for( int m = 48; m <  100; m = m+1+m/3 )
-=======
  for( int loop = 0; loop < loopEnd; loop++ )
   for( int n = nStart; n < nEnd; n = n+n/3 )
->>>>>>> 19bc2eb46600bf79b654c60f55eed7e66dbfaf4c
   {
   /* Try different m */
     for( int m = mStart; m < mEnd; m = m+1+m/3 )

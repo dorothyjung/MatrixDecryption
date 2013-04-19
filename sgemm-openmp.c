@@ -9,14 +9,23 @@
 
 void sgemm( int m, int n, int d, float *A, float *C )
 {
-	int vpad, hpad, n1 = n + 1;
+    float *temp; int n1 = n+1;
 	if (n % VERTICAL_ROLL != 0) {
-		vpad = n + VERTICAL_ROLL - (n % VERTICAL_ROLL);
-		float Apad[vpad*(n+d)];
-		for (int i = 0; i < vpad; i+=vpad) {
-			// copy matrix
-		}
+
+	    int length = n + VERTICAL_ROLL - (n % VERTICAL_ROLL);
+	    float Apad[length*(n+d)];
+	    memset(Apad, 0, (length*(n + d))*sizeof(float));		
+	    
+	    for (int i = 0; i < (n+d); i++) {
+		memcpy(Apad + i*length, A + i*n, n*(sizeof(float)));
+	    }
+	    
+	    A = Apad;
+	    float Cpad[length*length]; temp = C;
+	    memset(Cpad, 0, (length*length)*sizeof(float));
+	    C = Cpad;
 	}
+
 	#pragma omp parallel for
 	for (int j = 0; j < n; j++) {
 		for (int k = 0; k < m; k+= HORIZONTAL_ROLL) {
@@ -64,7 +73,15 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				_mm_storeu_ps(C+i1+j*n, _mm_add_ps(Cij1, _mm_add_ps(_mm_mul_ps(Ai1k3, Ajk3), _mm_add_ps(_mm_mul_ps(Ai1k2, Ajk2), _mm_add_ps(_mm_mul_ps(Ai1k, Ajk), _mm_mul_ps(Ai1k1, Ajk1))))));
 			}
 		}
-		// restore matrix
+	}		
+	if (n % VERTICAL_ROLL != 0) {
+
+	    int length = n + VERTICAL_ROLL - (n % VERTICAL_ROLL);
+	    for (int i = 0; i < n; i++) {
+		memcpy(temp + i*n, C + i*length, n*(sizeof(float)));
+	    }
+	    C = temp;
+
 	}
 	 //    int i,j,k,k1,k2,j1,j2,jn,kn,n2, m3, n4, n1=n+1;
 	 //    __m128 Ajk,Ajk1,Ajk2,Aj1k,Aj1k1,Aj1k2,Cij,Cij1,Aik,Aik1,Aik2,sumj,sumj1;
