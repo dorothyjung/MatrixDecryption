@@ -27,7 +27,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 					if (k3 < m) {
 						Ajk3 = _mm_load1_ps(A+j*n1+k3*n);
 						if (k4 < m) {
-							Ajk4 = _mm_load1_ps(A+j*n1+k3*n);
+							Ajk4 = _mm_load1_ps(A+j*n1+k4*n);
 						}else {
 							Ajk4 = _mm_setzero_ps();
 						}
