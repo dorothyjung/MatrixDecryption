@@ -7,10 +7,13 @@
 #define VERTICAL_ROLL 8
 #define HORIZONTAL_ROLL 4
 
+//for cache blocking
+//#define MIN(X,Y) (X<Y ? X : Y)
+
 void sgemm( int m, int n, int d, float *A, float *C )
 {
     int n1 = n+1;
-	#pragma omp parallel for
+    #pragma omp parallel for
 	for (int j = 0; j < n; j++) {
 		for (int k = 0; k < m; k+= HORIZONTAL_ROLL) {
 			int k1 = k+1; 
@@ -38,6 +41,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				Ajk3 = _mm_setzero_ps();
 			}
 			for (int i = 0; i < n/VERTICAL_ROLL*VERTICAL_ROLL; i+=VERTICAL_ROLL) {
+			    //i<MIN(n, a+blocksize); to be used for cache blocking
 			    int i1 = i+4, i2 = i+8;
 				__m128 Cij = _mm_loadu_ps(C+i+j*n);
 				__m128 Cij1 = _mm_loadu_ps(C+i1+j*n);
@@ -61,7 +65,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		}
 	}
 	//handle tail case for i here
-#pragma omp parallel for
+	#pragma omp parallel for
 	for (int j = 0; j < n; j++) {
 		for (int k = 0; k < m; k+= HORIZONTAL_ROLL) {
 			int k1 = k+1; 
@@ -99,7 +103,6 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			}
 		}
 	}		
-
 	
 	 //    int i,j,k,k1,k2,j1,j2,jn,kn,n2, m3, n4, n1=n+1;
 	 //    __m128 Ajk,Ajk1,Ajk2,Aj1k,Aj1k1,Aj1k2,Cij,Cij1,Aik,Aik1,Aik2,sumj,sumj1;
