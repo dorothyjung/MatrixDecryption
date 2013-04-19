@@ -24,10 +24,27 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			int k2 = k+2; 
 			int k3 = k+3;
 			// handle edge case here
-			__m128 Ajk = _mm_load1_ps(A+j*n1+k*n);
-			__m128 Ajk1 = _mm_load1_ps(A+j*n1+k1*n);
-			__m128 Ajk2 = _mm_load1_ps(A+j*n1+k2*n);
-			__m128 Ajk3 = _mm_load1_ps(A+j*n1+k3*n);
+			if (k < m) {
+				__m128 Ajk = _mm_load1_ps(A+j*n1+k*n);
+				if (k1 < m) {
+					__m128 Ajk1 = _mm_load1_ps(A+j*n1+k1*n);
+					if (k2 < m) {
+						__m128 Ajk2 = _mm_load1_ps(A+j*n1+k2*n);
+						if (k3 < m) {
+							__m128 Ajk3 = _mm_load1_ps(A+j*n1+k3*n);
+						}else {
+							__m128 Ajk3 = _mm_setzero_ps();
+						}
+					}else {
+						__m128 Ajk2 = _mm_setzero_ps();
+						__m128 Ajk3 = _mm_setzero_ps();
+					}
+				}else {
+					__m128 Ajk1 = _mm_setzero_ps();
+					__m128 Ajk2 = _mm_setzero_ps();
+					__m128 Ajk3 = _mm_setzero_ps();
+				}
+			}
 			for (int i = 0; i < n; i+=VERTICAL_ROLL) {
 				int i1 = i+4;
 				__m128 Cij = _mm_loadu_ps(C+i+j*n);
