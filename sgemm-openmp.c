@@ -61,7 +61,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				__m128 Ai1k3 = _mm_loadu_ps(A+i1+k3*n);
 
 				__m128 Aik4 = _mm_loadu_ps(A+i+k4*n);
-				__m128 Ai1k4 = __mm_loadu_ps(A+i1+k4*n);
+				__m128 Ai1k4 = _mm_loadu_ps(A+i1+k4*n);
 
 				_mm_storeu_ps(C+i+j*n, _mm_add_ps(Cij, _mm_add_ps(_mm_mul_ps(Aik4, Ajk4), _mm_add_ps(_mm_mul_ps(Aik3, Ajk3), _mm_add_ps(_mm_mul_ps(Aik2, Ajk2), _mm_add_ps(_mm_mul_ps(Aik1, Ajk1), _mm_mul_ps(Aik, Ajk)))))));
 				_mm_storeu_ps(C+i1+j*n, _mm_add_ps(Cij1, _mm_add_ps(_mm_mul_ps(Ai1k4, Ajk4), _mm_add_ps(_mm_mul_ps(Ai1k3, Ajk3), _mm_add_ps(_mm_mul_ps(Ai1k2, Ajk2), _mm_add_ps(_mm_mul_ps(Ai1k, Ajk), _mm_mul_ps(Ai1k1, Ajk1)))))));
