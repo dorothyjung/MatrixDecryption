@@ -38,7 +38,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				Ajk3 = _mm_setzero_ps();
 			}
 			for (int i = 0; i < n/VERTICAL_ROLL*VERTICAL_ROLL; i+=VERTICAL_ROLL) {
-				int i1 = i+4;
+			    int i1 = i+4, i2 = i+8;
 				__m128 Cij = _mm_loadu_ps(C+i+j*n);
 				__m128 Cij1 = _mm_loadu_ps(C+i1+j*n);
 				__m128 Cij2 = _mm_loadu_ps(C+i2+j*n);
@@ -61,6 +61,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		}
 	}
 	//handle tail case for i here
+#pragma omp parallel for
 	for (int j = 0; j < n; j++) {
 		for (int k = 0; k < m; k+= HORIZONTAL_ROLL) {
 			int k1 = k+1; 
