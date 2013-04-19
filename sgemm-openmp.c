@@ -5,7 +5,7 @@
 #include <omp.h>
 
 #define VERTICAL_ROLL 8
-#define HORIZONTAL_ROLL 4
+#define HORIZONTAL_ROLL 5
 
 void sgemm( int m, int n, int d, float *A, float *C )
 {
@@ -16,8 +16,9 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			int k1 = k+1; 
 			int k2 = k+2; 
 			int k3 = k+3;
+			int k4 = k+4;
 			// handle edge case here
-			__m128 Ajk, Ajk1, Ajk2, Ajk3;
+			__m128 Ajk, Ajk1, Ajk2, Ajk3, Ajk4;
 			Ajk = _mm_load1_ps(A+j*n1+k*n);
 			if (k1 < m) {
 				Ajk1 = _mm_load1_ps(A+j*n1+k1*n);
@@ -25,6 +26,11 @@ void sgemm( int m, int n, int d, float *A, float *C )
 					Ajk2 = _mm_load1_ps(A+j*n1+k2*n);
 					if (k3 < m) {
 						Ajk3 = _mm_load1_ps(A+j*n1+k3*n);
+						if (k4 < m) {
+							Ajk4 = _mm_load1_ps(A+j*n1+k3*n);
+						}else {
+							Ajk4 = _mm_setzero_ps();
+						}
 					}else {
 						Ajk3 = _mm_setzero_ps();
 					}
@@ -53,8 +59,12 @@ void sgemm( int m, int n, int d, float *A, float *C )
 
 				__m128 Aik3 = _mm_loadu_ps(A+i+k3*n);
 				__m128 Ai1k3 = _mm_loadu_ps(A+i1+k3*n);
-				_mm_storeu_ps(C+i+j*n, _mm_add_ps(Cij, _mm_add_ps(_mm_mul_ps(Aik3, Ajk3), _mm_add_ps(_mm_mul_ps(Aik2, Ajk2), _mm_add_ps(_mm_mul_ps(Aik1, Ajk1), _mm_mul_ps(Aik, Ajk))))));
-				_mm_storeu_ps(C+i1+j*n, _mm_add_ps(Cij1, _mm_add_ps(_mm_mul_ps(Ai1k3, Ajk3), _mm_add_ps(_mm_mul_ps(Ai1k2, Ajk2), _mm_add_ps(_mm_mul_ps(Ai1k, Ajk), _mm_mul_ps(Ai1k1, Ajk1))))));
+
+				__m128 Aik4 = _mm_loadu_ps(A+i+k4*n);
+				__m128 Ai1k4 = __mm_loadu_ps(A+i1+k4*n);
+
+				_mm_storeu_ps(C+i+j*n, _mm_add_ps(Cij, _mm_add_ps(_mm_mul_ps(Aik4, Ajk4), _mm_add_ps(_mm_mul_ps(Aik3, Ajk3), _mm_add_ps(_mm_mul_ps(Aik2, Ajk2), _mm_add_ps(_mm_mul_ps(Aik1, Ajk1), _mm_mul_ps(Aik, Ajk)))))));
+				_mm_storeu_ps(C+i1+j*n, _mm_add_ps(Cij1, _mm_add_ps(_mm_mul_ps(Ai1k4, Ajk4), _mm_add_ps(_mm_mul_ps(Ai1k3, Ajk3), _mm_add_ps(_mm_mul_ps(Ai1k2, Ajk2), _mm_add_ps(_mm_mul_ps(Ai1k, Ajk), _mm_mul_ps(Ai1k1, Ajk1)))))));
 			}
 		}
 	}		
