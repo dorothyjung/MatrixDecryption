@@ -17,3 +17,4 @@
 *.app
 
 *.sublime*
+sftp-config.json
