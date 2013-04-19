@@ -42,7 +42,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				int i2 = i+8;
 				__m128 Cij = _mm_loadu_ps(C+i+j*n);
 				__m128 Cij1 = _mm_loadu_ps(C+i1+j*n);
-				__m128 Cij2 = _mm_loadu_ps(C+i2+j*n)
+				__m128 Cij2 = _mm_loadu_ps(C+i2+j*n);
 
 				__m128 Aik = _mm_loadu_ps(A+i+k*n);
 				__m128 Ai1k = _mm_loadu_ps(A+i1+k*n);
