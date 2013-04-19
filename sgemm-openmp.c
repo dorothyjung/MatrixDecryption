@@ -4,7 +4,7 @@
 #include <string.h>
 #include <omp.h>
 
-#define VERTICAL_ROLL 12
+#define VERTICAL_ROLL 8
 #define HORIZONTAL_ROLL 4
 
 void sgemm( int m, int n, int d, float *A, float *C )
@@ -39,35 +39,24 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			}
 			for (int i = 0; i < n/VERTICAL_ROLL*VERTICAL_ROLL; i+=VERTICAL_ROLL) {
 				int i1 = i+4;
-				int i2 = i+8;
 				__m128 Cij = _mm_loadu_ps(C+i+j*n);
 				__m128 Cij1 = _mm_loadu_ps(C+i1+j*n);
 				__m128 Cij2 = _mm_loadu_ps(C+i2+j*n);
 
 				__m128 Aik = _mm_loadu_ps(A+i+k*n);
 				__m128 Ai1k = _mm_loadu_ps(A+i1+k*n);
-				__m128 Ai2k = _mm_loadu_ps(A+i2+k*n);
-
 
 				__m128 Aik1 = _mm_loadu_ps(A+i+k1*n);
 				__m128 Ai1k1 = _mm_loadu_ps(A+i1+k1*n);
-				__m128 Ai2k1 = _mm_loadu_ps(A+i2+k1*n);
-
 
 				__m128 Aik2 = _mm_loadu_ps(A+i+k2*n);
 				__m128 Ai1k2 = _mm_loadu_ps(A+i1+k2*n);
-				__m128 Ai2k2 = _mm_loadu_ps(A+i2+k2*n);
-
 
 				__m128 Aik3 = _mm_loadu_ps(A+i+k3*n);
 				__m128 Ai1k3 = _mm_loadu_ps(A+i1+k3*n);
-				__m128 Ai2k3 = _mm_loadu_ps(A+i2+k3*n);
-
 
 				_mm_storeu_ps(C+i+j*n, _mm_add_ps(Cij, _mm_add_ps(_mm_mul_ps(Aik3, Ajk3), _mm_add_ps(_mm_mul_ps(Aik2, Ajk2), _mm_add_ps(_mm_mul_ps(Aik1, Ajk1), _mm_mul_ps(Aik, Ajk))))));
 				_mm_storeu_ps(C+i1+j*n, _mm_add_ps(Cij1, _mm_add_ps(_mm_mul_ps(Ai1k3, Ajk3), _mm_add_ps(_mm_mul_ps(Ai1k2, Ajk2), _mm_add_ps(_mm_mul_ps(Ai1k, Ajk), _mm_mul_ps(Ai1k1, Ajk1))))));
-				_mm_storeu_ps(C+i2+j*n, _mm_add_ps(Cij2, _mm_add_ps(_mm_mul_ps(Ai2k3, Ajk3), _mm_add_ps(_mm_mul_ps(Ai2k2, Ajk2), _mm_add_ps(_mm_mul_ps(Ai2k, Ajk), _mm_mul_ps(Ai2k1, Ajk1))))));
-
 			}
 		}
 	}
