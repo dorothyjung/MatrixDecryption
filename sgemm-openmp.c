@@ -71,6 +71,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			}
 		}
 	}
+	//handle tail case for i here
 	for (int j = 0; j < n; j++) {
 		for (int k = 0; k < m; k+= HORIZONTAL_ROLL) {
 			int k1 = k+1; 
