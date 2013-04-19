@@ -61,6 +61,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				for(i = 0; i < n4; i+=4){
 			    	_mm_storeu_ps(C+i+jn, _mm_add_ps(_mm_mul_ps(Ajk, _mm_loadu_ps(A+i+kn)), _mm_loadu_ps(C+i+jn)));
 				}
+
 		    }
 		}	
   	
@@ -78,3 +79,13 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			}
 		}
 }
+
+
+
+
+
+
+
+
+
+
