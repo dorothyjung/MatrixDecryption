@@ -70,7 +70,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				_mm_storeu_ps(C+i1+j*n, _mm_add_ps(Cij1, _mm_add_ps(_mm_mul_ps(Ai1k4, Ajk4), _mm_add_ps(_mm_mul_ps(Ai1k3, Ajk3), _mm_add_ps(_mm_mul_ps(Ai1k2, Ajk2), _mm_add_ps(_mm_mul_ps(Ai1k, Ajk), _mm_mul_ps(Ai1k1, Ajk1)))))));
 			}
 		}
-	}		
+	}
 	for (int j = 0; j < n; j++) {
 		for (int k = 0; k < m; k+= HORIZONTAL_ROLL) {
 			int k1 = k+1; 
