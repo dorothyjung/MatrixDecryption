@@ -37,6 +37,6 @@ fringe case: use same method as lab07 (sum.c), add extra check so that variable 
 5. Cache Blocking - next
 optimal number of blocks to have
 run script that increases/tests different numbers of blocksize
- 
+64 byte block = 512 bit block = 4 vectors/block = 16 floats/block
 
 6. Compiler Tricks (minor modifications to your source code can cause the compiler to produce a faster program)
