@@ -6,9 +6,9 @@
 
 #define VERTICAL_ROLL 8
 #define HORIZONTAL_ROLL 4
-#define VBLOCK 96
-#define HBLOCK 96
-#define TBLOCK 32
+#define VBLOCK 400
+#define HBLOCK 32
+#define TBLOCK 400
 #define MIN(X, Y) (X<Y ? X : Y)
 
 void sgemm( int m, int n, int d, float *A, float *C )
