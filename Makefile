@@ -19,7 +19,7 @@ INCLUDES = -I$(GOTO)
 OMP = -fopenmp
 LIBS = -lpthread  
 # a pretty good flag selection for this machine...
-CFLAGS = -msse4 -fopenmp -O3 -pipe -fno-omit-frame-pointer
+CFLAGS = -g -msse4 -fopenmp -O3 -pipe -fno-omit-frame-pointer
 
 all:	bench-naive bench-small bench-openmp
 
