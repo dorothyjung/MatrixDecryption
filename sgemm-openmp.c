@@ -4,18 +4,16 @@
 #include <string.h>
 #include <omp.h>
 
-#define VERTICAL_ROLL 8
+#define VERTICAL_ROLL 32
 #define HORIZONTAL_ROLL 4
-#define VBLOCK 400
-#define HBLOCK 32
-#define TBLOCK 400
 #define MIN(X, Y) (X<Y ? X : Y)
 
 void sgemm( int m, int n, int d, float *A, float *C )
 {
+	int n1 = n+1;
 	#pragma omp parallel for
 	for (int j = 0; j < n; j++) {
-		for (int i = 0; i < n; i+=32) {
+		for (int i = 0; i < n/VERTICAL_ROLL*VERTICAL_ROLL; i+=VERTICAL_ROLL) {
 			int i1 = i + 4;
 			int i2 = i + 8;
 			int i3 = i + 12;
@@ -34,7 +32,9 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			__m128 Cij7 = _mm_loadu_ps(C+i7+j*n);
 
 			for (int k = 0; k < m; k++) {
-				 __m128 Ajk = _mm_load1_ps(A+j*(n+1)+k*n);
+				int k1 = k + 1;
+				 __m128 Ajk = _mm_load1_ps(A+j*n1+k*n);
+				 // __m128 Ajk1 = _mm_load1_ps(A+j*n1+k1*n);
 
 				 __m128 Aik = _mm_loadu_ps(A+i+k*n);
 				 __m128 Ai1k = _mm_loadu_ps(A+i1+k*n);
@@ -45,6 +45,24 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				 __m128 Ai6k = _mm_loadu_ps(A+i6+k*n);
 				 __m128 Ai7k = _mm_loadu_ps(A+i7+k*n);
 
+				 // __m128 Aik1 = _mm_loadu_ps(A+i+k1*n);
+				 // __m128 Ai1k1 = _mm_loadu_ps(A+i1+k1*n);
+				 // __m128 Ai2k1 = _mm_loadu_ps(A+i2+k1*n);
+				 // __m128 Ai3k1 = _mm_loadu_ps(A+i3+k1*n);
+				 // __m128 Ai4k1 = _mm_loadu_ps(A+i4+k1*n);
+				 // __m128 Ai5k1 = _mm_loadu_ps(A+i5+k1*n);
+				 // __m128 Ai6k1 = _mm_loadu_ps(A+i6+k1*n);
+				 // __m128 Ai7k1 = _mm_loadu_ps(A+i7+k1*n);
+
+
+				 // Cij = _mm_add_ps(Cij, _mm_add_ps(_mm_mul_ps(Ajk1, Aik1), _mm_mul_ps(Ajk, Aik)));
+				 // Cij1 = _mm_add_ps(Cij1, _mm_add_ps(_mm_mul_ps(Ajk1, Ai1k1), _mm_mul_ps(Ajk, Ai1k)));
+				 // Cij2 = _mm_add_ps(Cij2, _mm_add_ps(_mm_mul_ps(Ajk1, Ai2k1), _mm_mul_ps(Ajk, Ai2k)));
+				 // Cij3 = _mm_add_ps(Cij3, _mm_add_ps(_mm_mul_ps(Ajk1, Ai3k1), _mm_mul_ps(Ajk, Ai3k)));
+				 // Cij4 = _mm_add_ps(Cij4, _mm_add_ps(_mm_mul_ps(Ajk1, Ai4k1), _mm_mul_ps(Ajk, Ai4k)));
+				 // Cij5 = _mm_add_ps(Cij5, _mm_add_ps(_mm_mul_ps(Ajk1, Ai5k1), _mm_mul_ps(Ajk, Ai5k)));
+				 // Cij6 = _mm_add_ps(Cij6, _mm_add_ps(_mm_mul_ps(Ajk1, Ai6k1), _mm_mul_ps(Ajk, Ai6k)));
+				 // Cij7 = _mm_add_ps(Cij7, _mm_add_ps(_mm_mul_ps(Ajk1, Ai7k1), _mm_mul_ps(Ajk, Ai7k)));
 
 				 Cij = _mm_add_ps(Cij, _mm_mul_ps(Ajk, Aik));
 				 Cij1 = _mm_add_ps(Cij1, _mm_mul_ps(Ajk, Ai1k));
@@ -63,6 +81,19 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			_mm_store_ps(C+i5+j*n, Cij5);
 			_mm_store_ps(C+i6+j*n, Cij6);
 			_mm_store_ps(C+i7+j*n, Cij7);
+		}
+	}
+
+	#pragma omp parallel for
+	for (int j = 0; j < n; j++ ) {
+		for (int i = n/VERTICAL_ROLL*VERTICAL_ROLL; i < n; i++) {
+			__m128 Cij = _mm_load1_ps(C+i+j*n);
+			for (int k = 0; k < m; k++) {
+				__m128 Ajk = _mm_load1_ps(A+j*n1+k*n);
+				__m128 Aik = _mm_load1_ps(A+i+k*n);
+				Cij = _mm_add_ps(Cij, _mm_mul_ps(Ajk, Aik));
+			}
+			_mm_store_ss(C+i+j*n, Cij);
 		}
 	}
 }
