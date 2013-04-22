@@ -58,9 +58,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				_mm_store_ps(C+i+j*n, Cij);
 			}
 		}
-	}
-
-	if (n % VERTICAL_ROLL != 0 && n % 4 != 0) {
+	}else if (n % VERTICAL_ROLL != 0 && n % 4 != 0) {
 		#pragma omp parallel for
 		for (int j = 0; j < n; j++) {
 		    	    for (int i = n/VERTICAL_ROLL*VERTICAL_ROLL; i < n; i++) {
