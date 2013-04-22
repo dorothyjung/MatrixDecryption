@@ -72,19 +72,21 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		#pragma omp parallel for
 		for (int j = 0; j < n; j++) {
 		    float *Ajn1 = A+j*n1;
-		    for (int i = n/4*4; i < n; i++) {
-			float *addrCij = C+i+j*n;
-			float *Ajn1 = A+j*n1;
-			float *Ai = A+i;
-			__m128 Cij = _mm_loadu_ps(addrCij);
-			for (int k = 0; k < m; k++) {
-			    int kn = k*n;
-			    __m128 Ajk = _mm_load1_ps(Ajn1+kn);
-			    __m128 Aik = _mm_loadu_ps(Ai+kn);
-			    Cij = _mm_add_ps(Cij, _mm_mul_ps(Ajk, Aik));
+		    for (int b = 0; b< m; b += BLOCKSIZE) {
+			    for (int i = n/4*4; i < n; i++) {
+					float *addrCij = C+i+j*n;
+					float *Ajn1 = A+j*n1;
+					float *Ai = A+i;
+					__m128 Cij = _mm_loadu_ps(addrCij);
+					for (int k = b; k < MIN(m, b+BLOCKSIZE); k++) {
+					    int kn = k*n;
+					    __m128 Ajk = _mm_load1_ps(Ajn1+kn);
+					    __m128 Aik = _mm_loadu_ps(Ai+kn);
+					    Cij = _mm_add_ps(Cij, _mm_mul_ps(Ajk, Aik));
+					}
+					_mm_store_ss(addrCij, Cij);
+			    }
 			}
-			_mm_store_ss(addrCij, Cij);
-		    }
 		}	
 	}	
 }	
