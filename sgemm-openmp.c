@@ -38,10 +38,10 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		Cij2 = _mm_add_ps(Cij2, _mm_mul_ps(Ajk, Ai2k));
 		Cij3 = _mm_add_ps(Cij3, _mm_mul_ps(Ajk, Ai3k));
 	    }
-	    _mm_store_ps(Cjn+i, Cij);
-	    _mm_store_ps(Cjn+i1, Cij1);
-	    _mm_store_ps(Cjn+i2, Cij2);
-	    _mm_store_ps(Cjn+i3, Cij3);
+	    _mm_storeu_ps(Cjn+i, Cij);
+	    _mm_storeu_ps(Cjn+i1, Cij1);
+	    _mm_storeu_ps(Cjn+i2, Cij2);
+	    _mm_storeu_ps(Cjn+i3, Cij3);
 	}
     }
 	if (n % VERTICAL_ROLL != 0 && n % 4 == 0) {
@@ -56,7 +56,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				    __m128 Aik = _mm_loadu_ps(A+i+k*n);
 				    Cij = _mm_add_ps(Cij, _mm_mul_ps(Ajk, Aik));
 				}
-				_mm_store_ps(addrCij, Cij);
+				_mm_storeu_ps(addrCij, Cij);
 			}
 		}
 	}else if (n % VERTICAL_ROLL != 0 && n % 4 != 0) {
