@@ -19,18 +19,19 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			int i2 = i + 8;
 			int i3 = i + 12;
 
-			__m128 Cij = _mm_loadu_ps(C+i+j*n);
-			__m128 Cij1 = _mm_loadu_ps(C+i1+j*n);
-			__m128 Cij2 = _mm_loadu_ps(C+i2+j*n);
-			__m128 Cij3 = _mm_loadu_ps(C+i3+j*n);
+			__m128 Cij = _mm_loadu_ps(C+i+jn);
+			__m128 Cij1 = _mm_loadu_ps(C+i1+jn);
+			__m128 Cij2 = _mm_loadu_ps(C+i2+jn);
+			__m128 Cij3 = _mm_loadu_ps(C+i3+jn);
 
 			for (int k = 0; k < m; k++) {
-				 __m128 Ajk = _mm_load1_ps(A+j*n1+k*n);
+				int kn = k*n;
+				 __m128 Ajk = _mm_load1_ps(A+j*n1+kn);
 
-				 __m128 Aik = _mm_loadu_ps(A+i+k*n);
-				 __m128 Ai1k = _mm_loadu_ps(A+i1+k*n);
-				 __m128 Ai2k = _mm_loadu_ps(A+i2+k*n);
-				 __m128 Ai3k = _mm_loadu_ps(A+i3+k*n);
+				 __m128 Aik = _mm_loadu_ps(A+i+kn);
+				 __m128 Ai1k = _mm_loadu_ps(A+i1+kn);
+				 __m128 Ai2k = _mm_loadu_ps(A+i2+kn);
+				 __m128 Ai3k = _mm_loadu_ps(A+i3+kn);
 
 				 Cij = _mm_add_ps(Cij, _mm_mul_ps(Ajk, Aik));
 				 Cij1 = _mm_add_ps(Cij1, _mm_mul_ps(Ajk, Ai1k));
