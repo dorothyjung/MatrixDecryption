@@ -18,7 +18,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 	    int i1 = i + 4;
 	    int i2 = i + 8;
 	    int i3 = i + 12;
-	    
+
 	    __m128 Cij = _mm_loadu_ps(Cjn+i);
 	    __m128 Cij1 = _mm_loadu_ps(Cjn+i1);
 	    __m128 Cij2 = _mm_loadu_ps(Cjn+i2);
@@ -44,10 +44,10 @@ void sgemm( int m, int n, int d, float *A, float *C )
 	    _mm_storeu_ps(Cjn+i3, Cij3);
 	}
     }
-	if (n % VERTICAL_ROLL != 0 && n % 4 == 0) {
+    if (n % VERTICAL_ROLL != 0 && (n - (n/VERTICAL_ROLL*VERTICAL_ROLL) >= 4)) {
 		#pragma omp parallel for
 		for (int j = 0; j < n; j++) {
-			for (int i = n/VERTICAL_ROLL*VERTICAL_ROLL; i < n; i+=4) {
+			for (int i = n/VERTICAL_ROLL*VERTICAL_ROLL; i < n/4*4; i+=4) {
 				float *addrCij = C+i+j*n;
 				__m128 Cij = _mm_loadu_ps(addrCij);
 				for (int k = 0; k < m; k++) {
@@ -59,15 +59,16 @@ void sgemm( int m, int n, int d, float *A, float *C )
 				_mm_storeu_ps(addrCij, Cij);
 			}
 		}
-	}else if (n % VERTICAL_ROLL != 0 && n % 4 != 0) {
+    }
+    if ((n - n/VERTICAL_ROLL*VERTICAL_ROLL) % 4 != 0) {
 		#pragma omp parallel for
 		for (int j = 0; j < n; j++) {
-		    	    for (int i = n/VERTICAL_ROLL*VERTICAL_ROLL; i < n; i++) {
+		    	    for (int i = n/4*4; i < n; i++) {
 				float *addrCij = C+i+j*n;
 				__m128 Cij = _mm_loadu_ps(addrCij);
 				for (int k = 0; k < m; k++) {
 				    int kn = k*n;
-				    __m128 Ajk = _mm_loadu_ps(A+j*n1+kn);
+				    __m128 Ajk = _mm_load1_ps(A+j*n1+kn);
 				    __m128 Aik = _mm_loadu_ps(A+i+kn);
 				    Cij = _mm_add_ps(Cij, _mm_mul_ps(Ajk, Aik));
 				}
