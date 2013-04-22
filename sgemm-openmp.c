@@ -23,9 +23,9 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		    __m128 Cij1 = _mm_loadu_ps(Cjn+i1);
 		    __m128 Cij2 = _mm_loadu_ps(Cjn+i2);
 		    __m128 Cij3 = _mm_loadu_ps(Cjn+i3);
-		    
 		    for (int k = 0; k < m; k++) {
 				int k1 = k + 1; float *Akn = A+k*n;
+				
 				__m128 Ajk = _mm_load1_ps(Akn+jn1);
 				
 				__m128 Aik = _mm_loadu_ps(Akn+i);
@@ -50,7 +50,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			for (int i = n/VERTICAL_ROLL*VERTICAL_ROLL; i < n/4*4; i+=4) {
 				float *addrCij = C+i+j*n;
 				float *Ajn1 = A+j*n1;
-				float *Ai = A+i;
+				float *Ai = A+i;				
 				__m128 Cij = _mm_loadu_ps(addrCij);
 				for (int k = 0; k < m; k++) {
 				    int kn = k*n;				    
