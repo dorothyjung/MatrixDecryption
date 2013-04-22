@@ -13,6 +13,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 	int n1 = n+1;
 	#pragma omp parallel for
 	for (int j = 0; j < n; j++) {
+	    int jn = j*n;
 		for (int i = 0; i < n/VERTICAL_ROLL*VERTICAL_ROLL; i+=VERTICAL_ROLL) {
 			int i1 = i + 4;
 			int i2 = i + 8;
@@ -28,34 +29,34 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			__m128 Cij3 = _mm_loadu_ps(C+i3+j*n);
 
 			for (int k = 0; k < m; k++) {
-				int k1 = k + 1;
-				 __m128 Ajk = _mm_load1_ps(A+j*n1+k*n);
+			    int k1 = k + 1, kn = k*n;
+				 __m128 Ajk = _mm_load1_ps(A+j*n1+kn);
 
-				 __m128 Aik = _mm_loadu_ps(A+i+k*n);
-				 __m128 Ai1k = _mm_loadu_ps(A+i1+k*n);
-				 __m128 Ai2k = _mm_loadu_ps(A+i2+k*n);
-				 __m128 Ai3k = _mm_loadu_ps(A+i3+k*n);
+				 __m128 Aik = _mm_loadu_ps(A+i+kn);
+				 __m128 Ai1k = _mm_loadu_ps(A+i1+kn);
+				 __m128 Ai2k = _mm_loadu_ps(A+i2+kn);
+				 __m128 Ai3k = _mm_loadu_ps(A+i3+kn);
 
 				 Cij = _mm_add_ps(Cij, _mm_mul_ps(Ajk, Aik));
 				 Cij1 = _mm_add_ps(Cij1, _mm_mul_ps(Ajk, Ai1k));
 				 Cij2 = _mm_add_ps(Cij2, _mm_mul_ps(Ajk, Ai2k));
 				 Cij3 = _mm_add_ps(Cij3, _mm_mul_ps(Ajk, Ai3k));
 			}
-			_mm_store_ps(C+i+j*n, Cij);
-			_mm_store_ps(C+i1+j*n, Cij1);
-			_mm_store_ps(C+i2+j*n, Cij2);
-			_mm_store_ps(C+i3+j*n, Cij3);
+			_mm_store_ps(C+i+jn, Cij);
+			_mm_store_ps(C+i1+jn, Cij1);
+			_mm_store_ps(C+i2+jn, Cij2);
+			_mm_store_ps(C+i3+jn, Cij3);
 		}
 	}
 
-	if (n/VERTICAL_ROLL*VERTICAL_ROLL != 0) {
+	if (n/VERTICAL_ROLL*VERTICAL_ROLL != n) {
 		#pragma omp parallel for
 		for (int j = 0; j < n; j++) {
-			for (int i = n/VERTICAL_ROLL*VERTICAL_ROLL; i < n; i++) {
-				__m128 Cij = _mm_load1_ps(C+i+j*n);
+		    	    for (int i = n/VERTICAL_ROLL*VERTICAL_ROLL; i < n; i++) {
+				__m128 Cij = _mm_loadu_ps(C+i+j*n);
 				for (int k = 0; k < m; k++) {
-					__m128 Ajk = _mm_load1_ps(A+j*n1+k*n);
-					__m128 Aik = _mm_load1_ps(A+i+k*n);
+					__m128 Ajk = _mm_loadu_ps(A+j*n1+k*n);
+					__m128 Aik = _mm_loadu_ps(A+i+k*n);
 					Cij = _mm_add_ps(Cij, _mm_mul_ps(Ajk, Aik));
 				}
 				_mm_store_ss(C+i+j*n, Cij);
