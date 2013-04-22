@@ -46,7 +46,7 @@ void sgemm( int m, int n, int d, float *A, float *C )
 		    _mm_storeu_ps(Cjn+i3, Cij3);
 		}
     }
-    if (n % VERTICAL_ROLL != 0 && (n - (n/VERTICAL_ROLL*VERTICAL_ROLL) >= 4)) {
+    if (n % VERTICAL_ROLL != 0 && (n - nEnd >= 4)) {
 		#pragma omp parallel for
 		for (int j = 0; j < n; j++) {
 			for (int i = nEnd; i < n/4*4; i+=4) {
