@@ -12,8 +12,8 @@
 #define MIN(X, Y) (X<Y ? X : Y)
 
 void sgemm( int m, int n, int d, float *A, float *C )
-{
-	#pragma omp parallel for
+{	
+ 	#pragma omp parallel for
 	for (int j = 0; j < n; j++) {
 		for (int i = 0; i < n; i+=32) {
 			int i1 = i + 4;
@@ -65,5 +65,16 @@ void sgemm( int m, int n, int d, float *A, float *C )
 			_mm_store_ps(C+i7+j*n, Cij7);
 		}
 	}
+	for (int j = 0; j < n; j++) {
+	    for (int i = n/32*32; i < n; i++) {
+		__m128 Cij = _mm_loadu_ps(C+i+j*n);
+		for (int k = 0; k < m; k++) {
+		    __m128 Ajk = _mm_load1_ps(A+j*(n+1)+k*n);
+		    __m128 Aik = _mm_loadu_ps(A+i+k*n);
+		    Cij = _mm_add_ps(Cij, _mm_mul_ps(Ajk, Aik));
+		}
+		_mm_store_ss(C+i+j*n, Cij);
+	    }
+	}	    
 }
 
